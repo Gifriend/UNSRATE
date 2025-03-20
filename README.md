@@ -8,6 +8,12 @@ Michael Manoppo - 220211060271
 Gifriend Talumingan - 220211060328
 ```
 
+## Project Requirement
+
+```
+Nodejs paling kurang versi 18.17 
+```
+
 ## Getting Started
 
 sebelum run project ini jalankan dalam terminal
