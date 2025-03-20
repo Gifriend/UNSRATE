@@ -5,8 +5,8 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-rose-100 to-pink-100">
       <div className="container mx-auto px-4 py-10">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-pink-600">DatingApp</h1>
-          <p className="text-gray-600 mt-2">Temukan pasangan yang cocok untukmu</p>
+          <h1 className="text-4xl font-bold text-pink-600">UNSRATE</h1>
+          <p className="text-gray-600 mt-2">Temukan pasangan yang cocok untukmu di UNSRAT</p>
         </div>
         
         <div className="flex justify-center">
@@ -25,7 +25,9 @@ export default function Home() {
               </button>
               
               <button className="w-full py-3 px-4 bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 rounded-lg transition flex items-center justify-center">
+                <Link href="/dashboard">
                 <span>Masuk dengan Google</span>
+                </Link>
               </button>
             </div>
             

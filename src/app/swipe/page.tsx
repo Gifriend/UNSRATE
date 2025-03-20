@@ -3,45 +3,44 @@ import { useState } from 'react';
 import Header from '../../../components/Header';
 import SwipeCard from '../../../components/SwipeCard';
 import ActionButtons from '../../../components/ActionButtons';
+import { StaticImageData } from 'next/image';
+import mikel from '../assets/img/mikel.png';
+import clarissa from '../assets/img/clarissa.jpg';
+import mario from '../assets/img/mario.jpg';
 
-// Mendefinisikan tipe untuk profil
+
 interface Profile {
   id: number;
   name: string;
   age: number;
-  location: string;
   bio: string;
-  images: string[];
+  images: (string | StaticImageData)[];
 }
 
 export default function SwipePage() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   
-  // Data pengguna dummy
   const profiles: Profile[] = [
     {
       id: 1,
-      name: "Dewi",
-      age: 25,
-      location: "Jakarta",
-      bio: "Suka traveling dan fotografi",
-      images: ["/profiles/dewi1.jpg", "/profiles/dewi2.jpg"]
+      name: "Mario Paat",
+      age: 18,
+      bio: "Saya suka matematika dan machine learning",
+      images: [mario]
     },
     {
       id: 2,
-      name: "Budi",
-      age: 28,
-      location: "Bandung",
+      name: "Mikel",
+      age: 21,
       bio: "Pencinta kopi dan musik",
-      images: ["/profiles/budi1.jpg", "/profiles/budi2.jpg"]
+      images: [mikel, ]
     },
     {
       id: 3,
-      name: "Sinta",
+      name: "Clarissa",
       age: 24,
-      location: "Surabaya",
       bio: "Foodie dan penikmat film",
-      images: ["/profiles/sinta1.jpg"]
+      images: [clarissa]
     }
   ];
 
@@ -77,7 +76,6 @@ export default function SwipePage() {
             <ActionButtons 
               onDislike={handleDislike} 
               onLike={handleLike} 
-              onSuperLike={handleSuperLike} 
             />
           </>
         ) : (

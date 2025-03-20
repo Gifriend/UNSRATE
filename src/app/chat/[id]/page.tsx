@@ -2,7 +2,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 
-// Definisi tipe untuk pesan
 interface Message {
   id: number;
   sender: 'user' | 'match';
@@ -10,7 +9,6 @@ interface Message {
   timestamp: string;
 }
 
-// Definisi tipe untuk parameter halaman
 interface ChatPageProps {
   params: {
     id: string;
@@ -34,7 +32,6 @@ export default function ChatPage({ params }: ChatPageProps) {
   const [newMessage, setNewMessage] = useState<string>('');
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
-  // Scroll ke pesan terakhir saat halaman dimuat atau pesan baru ditambahkan
   useEffect(() => {
     endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -66,10 +63,9 @@ export default function ChatPage({ params }: ChatPageProps) {
             
             <div className="flex items-center">
               <div className="w-10 h-10 bg-gray-300 rounded-full mr-3">
-                {/* Gambar profil match */}
               </div>
               <div>
-                <h2 className="font-medium">{matchInfo.name}</h2>
+                <h2 className="font-medium text-black">{matchInfo.name}</h2>
                 <p className="text-xs text-gray-500">Online</p>
               </div>
             </div>
@@ -110,7 +106,7 @@ export default function ChatPage({ params }: ChatPageProps) {
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500"
+            className="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-pink-500 text-black"
             placeholder="Ketik pesan..."
             onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
           />
