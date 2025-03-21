@@ -1,13 +1,13 @@
 "use client"
 import { useState } from 'react';
-import Header from '../../../components/Header';
-import SwipeCard from '../../../components/SwipeCard';
-import ActionButtons from '../../../components/ActionButtons';
+import Header from '../components/Header';
+import SwipeCard from '../components/SwipeCard';
+import ActionButtons from '../components/ActionButtons';
 import { StaticImageData } from 'next/image';
 import mikel from '../assets/img/mikel.png';
 import clarissa from '../assets/img/clarissa.jpg';
 import mario from '../assets/img/mario.jpg';
-
+import { Heart } from 'lucide-react';
 
 interface Profile {
   id: number;
@@ -66,25 +66,27 @@ export default function SwipePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <Header />
-      
-      <div className="container mx-auto px-4 py-6">
+
+      <main className="container max-w-md mx-auto px-4 py-6">
         {currentIndex < profiles.length ? (
-          <>
+          <div className="space-y-6">
             <SwipeCard profile={profiles[currentIndex]} />
-            <ActionButtons 
-              onDislike={handleDislike} 
-              onLike={handleLike} 
-            />
-          </>
+            <ActionButtons onDislike={handleDislike} onLike={handleLike}  />
+          </div>
         ) : (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-700">Tidak ada profil lagi</h2>
-            <p className="text-gray-500 mt-2">Coba lagi nanti ya!</p>
+          <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 bg-background rounded-3xl shadow-lg border p-8">
+            <div className="rounded-full bg-muted p-6">
+              <Heart className="h-12 w-12 text-muted-foreground" />
+            </div>
+            <h2 className="text-2xl font-bold">Tidak ada profil lagi</h2>
+            <p className="text-muted-foreground max-w-xs">
+              Kami sedang mencari lebih banyak orang yang cocok dengan Anda. Coba lagi nanti ya!
+            </p>
           </div>
         )}
-      </div>
+      </main>
     </div>
-  );
+  )
 }
