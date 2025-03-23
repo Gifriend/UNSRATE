@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, use } from "react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
 import { Input } from "@/app/components/ui/input"
@@ -16,18 +16,21 @@ interface Message {
 }
 
 interface ChatPageProps {
-  params:Promise<{ id: string; }>;
-
+  params: Promise<{
+    id: string
+  }>
 }
 
-export default async function ChatPage({ params }: ChatPageProps) {
-  const resolvedParams = await params;
-  const id = Number.parseInt(resolvedParams.id)
+export default function ChatPage({ params }: ChatPageProps) {
+  // Unwrap the params promise using React's use function
+  const { id: paramId } = use(params)
+  const id = Number.parseInt(paramId)
+
   const [matchInfo, setMatchInfo] = useState({
     id: id,
     name: id === 1 ? "Mario" : id === 2 ? "Mikel" : "Clarissa",
     online: id === 1 || id === 3,
-    image: `/placeholder.svg?height=100&width=100`,
+    image: ``,
   })
 
   const [messages, setMessages] = useState<Message[]>([
