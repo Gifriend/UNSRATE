@@ -16,13 +16,13 @@ interface Message {
 }
 
 interface ChatPageProps {
-  params: {
-    id: string
-  }
+  params:Promise<{ id: string; }>;
+
 }
 
-export default function ChatPage({ params }: ChatPageProps) {
-  const id = Number.parseInt(params.id)
+export default async function ChatPage({ params }: ChatPageProps) {
+  const resolvedParams = await params;
+  const id = Number.parseInt(resolvedParams.id)
   const [matchInfo, setMatchInfo] = useState({
     id: id,
     name: id === 1 ? "Mario" : id === 2 ? "Mikel" : "Clarissa",

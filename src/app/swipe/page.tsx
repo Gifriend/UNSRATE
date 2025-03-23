@@ -58,12 +58,12 @@ export default function SwipePage() {
     }
   };
 
-  const handleSuperLike = () => {
-    console.log(`Super Liked ${profiles[currentIndex].name}`);
-    if (currentIndex < profiles.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
+  // const handleSuperLike = () => {
+  //   console.log(`Super Liked ${profiles[currentIndex].name}`);
+  //   if (currentIndex < profiles.length - 1) {
+  //     setCurrentIndex(currentIndex + 1);
+  //   }
+  // };
 
   return (
     <div className="min-h-screen bg-background">
