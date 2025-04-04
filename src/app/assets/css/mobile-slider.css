@@ -1,0 +1,77 @@
+/* Smooth transitions for all elements */
+* {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Desktop slider panel animation */
+.slider-panel {
+  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.3);
+  transition: all 800ms cubic-bezier(0.86, 0, 0.07, 1);
+  position: absolute;
+}
+
+/* Add scale effect during transition */
+@media (min-width: 720px) {
+  .slider-panel {
+    transform-origin: center;
+  }
+  
+  .slider-panel:before {
+    content: "";
+    position: absolute;
+    background: rgba(255, 255, 255, 0.1);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    transform: scale(0);
+    transition: transform 400ms ease-in-out;
+    border-radius: inherit;
+  }
+
+  .slider-panel:hover:before {
+    transform: scale(1);
+  }
+}
+
+/* Mobile specific animations */
+@media (max-width: 720px) {
+  /* Add perspective to create 3D effect */
+  .relative.h-\[600px\] {
+    perspective: 1000px;
+  }
+  
+  /* Login form transition */
+  .absolute.inset-0.w-full.p-6 {
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    transition-duration: 800ms;
+  }
+  
+  /* Custom animation for mobile forms */
+  .translate-y-0.opacity-100 {
+    z-index: 2;
+    transition-timing-function: ease-out;
+  }
+  
+  .translate-y-full.opacity-0 {
+    z-index: 1;
+    transition-timing-function: ease-in;
+  }
+  
+  .-translate-y-full.opacity-0 {
+    z-index: 1;
+    transition-timing-function: ease-in;
+  }
+  
+  /* Add subtle scale effect for mobile buttons */
+  button {
+    transition: all 250ms ease;
+  }
+  
+  button:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
