@@ -7,6 +7,7 @@ import { Button } from "@/app/components/ui/button"
 import { Label } from "@/app/components/ui/label"
 import { cn } from "@/app/lib/utils"
 import "@/app/assets/css/mobile-slider.css"
+import Link from "next/link"
 
 export default function AuthSlider() {
   const [isLogin, setIsLogin] = useState(true)
@@ -43,7 +44,7 @@ export default function AuthSlider() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 p-4 overflow-hidden">
       <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-xl border bg-white shadow-lg sm:max-w-lg md:max-w-4xl">
-        {/* Mobile View (480px and below) */}
+        {/* Mobile View (767px and below) */}
         {isMobile ? (
           <div className="relative h-[600px] w-full overflow-hidden">
             {/* Login Form - Mobile */}
@@ -69,20 +70,21 @@ export default function AuthSlider() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password-login-mobile" className="text-black">Password</Label>
-                      <Button variant="link" className="h-auto p-0 text-xs">
+                      {/* <Button variant="link" className="h-auto p-0 text-xs">
                         Forgot password?
-                      </Button>
+                      </Button> */}
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input id="password-login-mobile" type="password" className="pl-10" />
                     </div>
                   </div>
-
+                  <Link href="/dashboard">
                   <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                     Sign In
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+                  </Link>
                 </form>
 
                 <div className="mt-8 text-center">
@@ -135,10 +137,12 @@ export default function AuthSlider() {
                     </div>
                   </div>
 
+                  <Link href="/swipe">
                   <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                     Sign Up
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+                  </Link>
                 </form>
 
                 <div className="mt-8 text-center">
@@ -156,7 +160,7 @@ export default function AuthSlider() {
             </div>
           </div>
         ) : (
-          // Desktop View (above 480px)
+          // Desktop View (above 767px)
           <div className="flex h-[500px] flex-col md:flex-row overflow-hidden">
             {/* Left Panel (Login) */}
             <div className="flex flex-1 flex-col items-center justify-center p-8 md:order-1 relative overflow-hidden">
@@ -183,9 +187,9 @@ export default function AuthSlider() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password-login" className="text-black">Password</Label>
-                      <Button variant="link" className="h-auto p-0 text-xs">
+                      {/* <Button variant="link" className="h-auto p-0 text-xs">
                         Forgot password?
-                      </Button>
+                      </Button> */}
                     </div>
                     <div className="relative">
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -193,10 +197,12 @@ export default function AuthSlider() {
                     </div>
                   </div>
 
+                  <Link href="/dashboard">
                   <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                     Sign In
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+                  </Link>
                 </form>
               </div>
             </div>
@@ -239,10 +245,12 @@ export default function AuthSlider() {
                     </div>
                   </div>
 
+                  <Link href="/swipe">
                   <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
                     Sign Up
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
+                  </Link>
                 </form>
               </div>
             </div>

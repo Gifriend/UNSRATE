@@ -57,7 +57,7 @@ export default function Dashboard() {
 
       <div className="flex min-h-screen">
         {/* Sidebar */}
-        <div className="hidden lg:flex w-64 flex-col border-r bg-background">
+        {/* <div className="hidden lg:flex w-64 flex-col border-r bg-background">
           <div className="p-4 border-b">
             <div className="flex items-center gap-2">
               <div className="rounded-full bg-pink-500 p-1">
@@ -81,7 +81,7 @@ export default function Dashboard() {
               <span>Verifikasi</span>
             </Button>
           </nav>
-        </div>
+        </div> */}
 
         {/* Main content */}
         <main className="flex-1 p-6">
