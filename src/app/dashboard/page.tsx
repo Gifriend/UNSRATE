@@ -1,14 +1,14 @@
 "use client"
 
-import { SetStateAction, useState } from "react"
+import { type SetStateAction, useState } from "react"
 import Head from "next/head"
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
-import { Button } from "../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
-import { Input } from "../components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
+import { Button } from "@/app/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
+import { Input } from "@/app/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { AlertCircle, CheckCircle, ChevronDown, Filter, RefreshCw, Search, User, Users } from "lucide-react"
-import { Badge } from "../components/ui/badge"
+import { Badge } from "@/app/components/ui/badge"
 
 interface Student {
   id: number
@@ -55,34 +55,7 @@ export default function Dashboard() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        {/* <div className="hidden lg:flex w-64 flex-col border-r bg-background">
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-2">
-              <div className="rounded-full bg-pink-500 p-1">
-                <User className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold">UNSRATE Admin</h1>
-            </div>
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
-            <Button variant="secondary" className="w-full justify-start gap-2">
-              <Users className="h-4 w-4" />
-              <span>Mahasiswa</span>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <AlertCircle className="h-4 w-4" />
-              <span>Laporan</span>
-            </Button>
-            <Button variant="ghost" className="w-full justify-start gap-2">
-              <CheckCircle className="h-4 w-4" />
-              <span>Verifikasi</span>
-            </Button>
-          </nav>
-        </div> */}
-
+      <div className="flex min-h-screen">        
         {/* Main content */}
         <main className="flex-1 p-6">
           <div className="max-w-6xl mx-auto space-y-6">
@@ -102,12 +75,12 @@ export default function Dashboard() {
                     onChange={(e: { target: { value: SetStateAction<string> } }) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button variant="outline" size="icon">
+                {/* <Button variant="outline" size="icon">
                   <Filter className="h-4 w-4" />
                 </Button>
                 <Button variant="outline" size="icon">
                   <RefreshCw className="h-4 w-4" />
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -156,9 +129,9 @@ export default function Dashboard() {
                   <TabsTrigger value="reported">Laporan</TabsTrigger>
                 </TabsList>
 
-                <Button variant="outline" size="sm" className="gap-1">
+                {/* <Button variant="outline" size="sm" className="gap-1">
                   Export <ChevronDown className="h-4 w-4" />
-                </Button>
+                </Button> */}
               </div>
 
               <TabsContent value="all" className="mt-6">
@@ -284,11 +257,136 @@ export default function Dashboard() {
               </TabsContent>
 
               <TabsContent value="verified" className="mt-6">
-                {/* Similar table for verified students */}
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left p-4 font-medium">Nama</th>
+                            <th className="text-left p-4 font-medium">NIM</th>
+                            <th className="text-left p-4 font-medium">Status</th>
+                            <th className="text-left p-4 font-medium">Laporan</th>
+                            <th className="text-right p-4 font-medium">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {verifiedStudents.length > 0 ? (
+                            verifiedStudents.map((student) => (
+                              <tr key={student.id} className="border-b hover:bg-muted/50">
+                                <td className="p-4">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage
+                                        src={student.avatar || `/placeholder.svg?height=32&width=32`}
+                                        alt={student.nama}
+                                      />
+                                      <AvatarFallback>{student.nama[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="font-medium">{student.nama}</span>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-muted-foreground">{student.nim}</td>
+                                <td className="p-4">
+                                  <Badge variant="success">{student.status}</Badge>
+                                </td>
+                                <td className="p-4">
+                                  {student.reports > 0 ? (
+                                    <Badge variant="destructive">{student.reports} laporan</Badge>
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">Tidak ada</span>
+                                  )}
+                                </td>
+                                <td className="p-4 text-right">
+                                  <div className="flex justify-end gap-2">
+                                    <Button onClick={() => handleDelete(student.id)} size="sm" variant="destructive">
+                                      Delete
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                                Tidak ada mahasiswa terverifikasi
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
 
               <TabsContent value="reported" className="mt-6">
-                {/* Similar table for reported students */}
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left p-4 font-medium">Nama</th>
+                            <th className="text-left p-4 font-medium">NIM</th>
+                            <th className="text-left p-4 font-medium">Status</th>
+                            <th className="text-left p-4 font-medium">Laporan</th>
+                            <th className="text-right p-4 font-medium">Aksi</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reportedStudents.length > 0 ? (
+                            reportedStudents.map((student) => (
+                              <tr key={student.id} className="border-b hover:bg-muted/50">
+                                <td className="p-4">
+                                  <div className="flex items-center gap-3">
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarImage
+                                        src={student.avatar || `/placeholder.svg?height=32&width=32`}
+                                        alt={student.nama}
+                                      />
+                                      <AvatarFallback>{student.nama[0]}</AvatarFallback>
+                                    </Avatar>
+                                    <span className="font-medium">{student.nama}</span>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-muted-foreground">{student.nim}</td>
+                                <td className="p-4">
+                                  <Badge variant={student.status === "Verified" ? "success" : "warning"}>
+                                    {student.status}
+                                  </Badge>
+                                </td>
+                                <td className="p-4">
+                                  <Badge variant="destructive" className="font-medium">
+                                    {student.reports} laporan
+                                  </Badge>
+                                </td>
+                                <td className="p-4 text-right">
+                                  <div className="flex justify-end gap-2">
+                                    {student.status !== "Verified" && (
+                                      <Button onClick={() => handleVerify(student.id)} size="sm" variant="outline">
+                                        Verify
+                                      </Button>
+                                    )}
+                                    <Button onClick={() => handleDelete(student.id)} size="sm" variant="destructive">
+                                      Delete
+                                    </Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                                Tidak ada mahasiswa dengan laporan
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -297,4 +395,3 @@ export default function Dashboard() {
     </div>
   )
 }
-
