@@ -26,7 +26,7 @@ interface UserProfile {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<UserProfile>({
     name: "Satrian Amu",
-    age: 21,
+    age: 22,
     bio: "Pria yang Lucu, Asik, Menyenangkan dan suka Coding",
     location: "Manado, Sulawesi Utara",
     education: "Computer Science Student",
