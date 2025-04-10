@@ -42,7 +42,7 @@ export default function AuthSlider() {
   }
 
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 p-4 overflow-hidden">
+    <div className="flex h-screen w-full items-center justify-center bg-pink-200 from-blue-50 to-pink-50 p-4 overflow-hidden">
       <div className="relative mx-auto w-full max-w-md overflow-hidden rounded-xl border bg-white shadow-lg sm:max-w-lg md:max-w-4xl">
         {/* Mobile View (767px and below) */}
         {isMobile ? (
@@ -80,7 +80,7 @@ export default function AuthSlider() {
                     </div>
                   </div>
                   <Link href="/dashboard">
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button type="submit" className="w-full bg-pink-500 hover:bg-pink-700 text-white">
                     Sign In
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -92,7 +92,7 @@ export default function AuthSlider() {
                   <Button
                     onClick={toggleForm}
                     variant="outline"
-                    className="border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                    className="border-pink-600 text-pink-600 hover:bg-pink-50"
                     disabled={isAnimating}
                   >
                     Sign Up
@@ -138,7 +138,7 @@ export default function AuthSlider() {
                   </div>
 
                   <Link href="/swipe">
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white">
                     Sign Up
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -150,7 +150,7 @@ export default function AuthSlider() {
                   <Button
                     onClick={toggleForm}
                     variant="outline"
-                    className="border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+                    className="border-pink-600 text-pink-600 hover:bg-pink-50"
                     disabled={isAnimating}
                   >
                     Sign In
@@ -198,7 +198,7 @@ export default function AuthSlider() {
                   </div>
 
                   <Link href="/dashboard">
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white">
                     Sign In
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -246,7 +246,7 @@ export default function AuthSlider() {
                   </div>
 
                   <Link href="/swipe">
-                  <Button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white">
+                  <Button type="submit" className="w-full bg-pink-600 hover:bg-pink-700 text-white">
                     Sign Up
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
@@ -261,8 +261,8 @@ export default function AuthSlider() {
                 "absolute flex flex-col items-center justify-center p-8 text-center text-white transition-all duration-700 ease-in-out z-10",
                 "md:w-1/2 w-full md:h-full h-1/2",
                 isLogin
-                  ? "md:right-0 md:translate-x-0 bottom-0 translate-y-0 rounded-l-3xl bg-indigo-600 slider-panel"
-                  : "md:left-0 md:translate-x-0 top-0 translate-y-0 rounded-r-3xl bg-indigo-600 slider-panel",
+                  ? "md:right-0 md:translate-x-0 bottom-0 translate-y-0 rounded-l-3xl bg-pink-600 slider-panel"
+                  : "md:left-0 md:translate-x-0 top-0 translate-y-0 rounded-r-3xl bg-pink-600 slider-panel",
               )}
             >
               <div className="max-w-xs transition-all duration-700 ease-in-out">
