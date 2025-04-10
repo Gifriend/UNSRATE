@@ -94,8 +94,6 @@ export default function ProfilePage() {
 
   // Handle photo upload
   const handlePhotoUpload = (file: File) => {
-    // In a real app, you would upload the file to a server
-    // and get back a URL. Here we're just creating a local URL.
     const newImageUrl = URL.createObjectURL(file)
 
     setProfile({
