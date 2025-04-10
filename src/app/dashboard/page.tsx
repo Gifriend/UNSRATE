@@ -7,8 +7,9 @@ import { Button } from "@/app/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
 import { Input } from "@/app/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
-import { AlertCircle, CheckCircle, ChevronDown, Filter, RefreshCw, Search, User, Users } from "lucide-react"
+import { AlertCircle, CheckCircle, ChevronDown, Filter, LogOut, RefreshCw, Search, User, Users } from "lucide-react"
 import { Badge } from "@/app/components/ui/badge"
+import Link from "next/link"
 
 interface Student {
   id: number
@@ -75,6 +76,15 @@ export default function Dashboard() {
                     onChange={(e: { target: { value: SetStateAction<string> } }) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                <Link href="/">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start gap-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
+                  </Button>
+                </Link>
                 {/* <Button variant="outline" size="icon">
                   <Filter className="h-4 w-4" />
                 </Button>
