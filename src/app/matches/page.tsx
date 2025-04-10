@@ -6,13 +6,14 @@ import type { StaticImageData } from "next/image"
 import { Input } from "@/app/components/ui/input"
 import { Button } from "@/app/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
-import { Search, MessageCircle } from "lucide-react"
+import { Search, MessageCircle, User } from "lucide-react"
 import { cn } from "@/app/lib/utils"
 
 // Import gambar
 import mikel from "@/app/assets/img/mikel.png"
 import clarissa from "@/app/assets/img/clarissa.jpg"
 import mario from "@/app/assets/img/mario.jpg"
+import veronica from "@/app/assets/img/veronica.jpg"
 import Header from "@/app/components/Header"
 
 interface Match {
@@ -60,22 +61,22 @@ export default function MatchesPage() {
     },
     {
       id: 4,
-      name: "Clarissa",
+      name: "Veronica",
       lastMessage: "Baru match!",
       timestamp: "3j",
       online: true,
-      image: clarissa,
+      image: veronica,
       seen: true,
     },
-    {
-      id: 5,
-      name: "Mikel",
-      lastMessage: "Baru match!",
-      timestamp: "5j",
-      online: false,
-      image: mikel,
-      seen: true,
-    },
+    // {
+    //   id: 5,
+    //   name: "Mikel",
+    //   lastMessage: "Baru match!",
+    //   timestamp: "5j",
+    //   online: false,
+    //   image: mikel,
+    //   seen: true,
+    // },
   ]
 
   const filteredMatches = matches.filter(
@@ -103,7 +104,7 @@ export default function MatchesPage() {
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search messages@/app."
+                placeholder="Search messages..."
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,15 +135,24 @@ export default function MatchesPage() {
           <div className="hidden md:block md:col-span-8 lg:col-span-9">
             {selectedMatch ? (
               <div className="border rounded-lg h-[calc(100vh-12rem)] flex flex-col">
-                <div className="border-b p-4 flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={selectedMatch.image.src} alt={selectedMatch.name} />
-                    <AvatarFallback>{selectedMatch.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h2 className="font-medium">{selectedMatch.name}</h2>
-                    <p className="text-xs text-muted-foreground">{selectedMatch.online ? "Online" : "Offline"}</p>
+                <div className="border-b p-4 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Avatar className="h-10 w-10 mr-3">
+                      <AvatarImage src={selectedMatch.image.src} alt={selectedMatch.name} />
+                      <AvatarFallback>{selectedMatch.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="font-medium">{selectedMatch.name}</h2>
+                      <p className="text-xs text-muted-foreground">{selectedMatch.online ? "Online" : "Offline"}</p>
+                    </div>
                   </div>
+
+                  <Link href={`/profile/${selectedMatch.id}`}>
+                    <Button variant="outline" size="sm" className="gap-2">
+                      <User className="h-4 w-4" />
+                      <span>View Profile</span>
+                    </Button>
+                  </Link>
                 </div>
                 <div className="flex-1 p-6 flex items-center justify-center">
                   <div className="text-center">

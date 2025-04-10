@@ -70,7 +70,7 @@ export function PhotoUploadModal({ onSave, triggerButton }: PhotoUploadModalProp
           </Button>
         )}
       </ModalTrigger>
-      <ModalContent className="sm:max-w-md">
+      <ModalContent className="sm:max-w-md bg-white">
         <ModalHeader>
           <ModalTitle>Upload Photo</ModalTitle>
           <ModalDescription>

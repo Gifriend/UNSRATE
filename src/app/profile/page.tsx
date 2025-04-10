@@ -139,7 +139,7 @@ export default function ProfilePage() {
           <div className="absolute -bottom-16 left-6 md:left-10 rounded-full border-4 border-background bg-muted h-32 w-32 md:h-40 md:w-40 overflow-hidden">
             <Image src={profile.images[0] || "/placeholder.svg"} alt="Profile Photo" fill className="object-cover" />
           </div>
-          <div className="absolute top-4 right-4 flex gap-2">
+          {/* <div className="absolute top-4 right-4 flex gap-2">
             <Button
               size="icon"
               variant="secondary"
@@ -154,7 +154,7 @@ export default function ProfilePage() {
             >
               <Edit className="h-4 w-4" />
             </Button>
-          </div>
+          </div> */}
         </div>
 
         <div className="pt-16 pb-6 md:pt-20 md:pb-8 md:px-4">
@@ -187,11 +187,11 @@ export default function ProfilePage() {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="hidden md:block mt-6">
+              {/* <div className="hidden md:block mt-6">
                 <Button className="w-full" size="lg">
                   Edit Profile
                 </Button>
-              </div>
+              </div> */}
             </div>
 
             <div className="md:col-span-8">

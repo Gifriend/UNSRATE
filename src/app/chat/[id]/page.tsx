@@ -16,6 +16,7 @@ import {
   ImageIcon,
   Info,
   MapPin,
+  MoreHorizontal,
   Paperclip,
   Send,
   Smile,
@@ -28,6 +29,7 @@ import mikel from "@/app/assets/img/mikel.png"
 import clarissa from "@/app/assets/img/clarissa.jpg"
 import mario from "@/app/assets/img/mario.jpg"
 import Header from "@/app/components/Header"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
 
 interface Message {
   id: number
@@ -144,6 +146,10 @@ export default function ChatPage({ params }: ChatPageProps) {
     endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
+  const handleReport = () => {
+    alert("Anda berhasil melaporkan orang ini")
+  }
+
   // Simulate typing indicator
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].sender === "user") {
@@ -208,10 +214,15 @@ export default function ChatPage({ params }: ChatPageProps) {
             <div className="hidden md:block md:col-span-3 lg:col-span-3">
               <Card className="sticky top-4">
                 <CardContent className="p-6 flex flex-col items-center text-center">
-                  <Avatar className="h-24 w-24 mb-4">
-                    <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
-                    <AvatarFallback className="text-2xl">{matchInfo.name[0]}</AvatarFallback>
-                  </Avatar>
+                  <Link href={`/profile/${matchInfo.id}`} className="group">
+                    <Avatar className="h-24 w-24 mb-4 ring-2 ring-transparent group-hover:ring-pink-500 transition-all">
+                      <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
+                      <AvatarFallback className="text-2xl">{matchInfo.name[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="absolute -right-1 -top-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Badge className="bg-pink-500 hover:bg-pink-600">View</Badge>
+                    </div>
+                  </Link>
                   <h2 className="text-xl font-bold mb-1">
                     {matchInfo.name}, {matchInfo.age}
                   </h2>
@@ -251,10 +262,12 @@ export default function ChatPage({ params }: ChatPageProps) {
                     </div>
 
                     <div className="w-full space-y-2 mt-4">
-                      {/* <Button variant="outline" className="w-full">
-                        <User className="h-4 w-4 mr-2" /> View Profile
-                      </Button> */}
-                      <Button variant="outline" className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+                      <Link href={`/profile/${matchInfo.id}`}>
+                        <Button variant="outline" className="w-full">
+                          <User className="h-4 w-4 mr-2" /> View Profile
+                        </Button>
+                      </Link>
+                      <Button variant="outline" className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50" onClick={handleReport}>
                         <Info className="h-4 w-4 mr-2" /> Report
                       </Button>
                     </div>
@@ -273,7 +286,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                     </Button>
                   </Link>
 
-                  <div className="flex items-center">
+                  <Link href={`/profile/${matchInfo.id}`} className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
                       <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
@@ -282,12 +295,26 @@ export default function ChatPage({ params }: ChatPageProps) {
                       <h2 className="font-medium">{matchInfo.name}</h2>
                       <p className="text-xs text-muted-foreground">{matchInfo.online ? "Online" : "Offline"}</p>
                     </div>
-                  </div>
+                  </Link>
                 </div>
 
-                <Button size="icon" variant="ghost" className="h-8 w-8">
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="icon" variant="ghost" className="h-8 w-8">
+                      <MoreHorizontal className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-white">
+                    <Link href={`/profile/${matchInfo.id}`}>
+                      <DropdownMenuItem>
+                        <User className="h-4 w-4 mr-2" /> View Profile
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem onClick={handleReport}>
+                      <Info className="h-4 w-4 mr-2" /> Report
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
               {/* Messages */}
@@ -302,7 +329,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={cn("flex", message.sender === "user" ? "justify-end" : "justify-start")}
+                    className={cn("flex group", message.sender === "user" ? "justify-end" : "justify-start")}
                   >
                     {message.sender === "match" && (
                       <Avatar className="h-8 w-8 mr-2 self-end">
@@ -310,7 +337,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                         <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
                       </Avatar>
                     )}
-                    <div>
+                    <div className="relative">
                       <div
                         className={cn(
                           "max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl",
@@ -321,9 +348,27 @@ export default function ChatPage({ params }: ChatPageProps) {
                       >
                         <p>{message.text}</p>
                       </div>
-                      <div className="flex mt-1 text-xs text-muted-foreground">
+                      <div className="flex mt-1 text-xs text-muted-foreground items-center">
                         <span>{message.timestamp}</span>
                         {message.sender === "user" && message.seen && <span className="ml-2">Seen</span>}
+
+                        {/* Like button for messages */}
+                        {/* {message.sender === "match" && (
+                          <button
+                            className={cn(
+                              "ml-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity",
+                              message.liked && "opacity-100",
+                            )}
+                            onClick={() => handleLikeMessage(message.id)}
+                          >
+                            <Heart
+                              className={cn(
+                                "h-3.5 w-3.5",
+                                message.liked ? "fill-pink-500 text-pink-500" : "text-muted-foreground",
+                              )}
+                            />
+                          </button>
+                        )} */}
                       </div>
                     </div>
                   </div>
