@@ -76,7 +76,7 @@ export default function Dashboard() {
                     onChange={(e: { target: { value: SetStateAction<string> } }) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Link href="/">
+                <Link href="/login">
                   <Button
                     variant="outline"
                     className="w-full justify-start gap-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50"
