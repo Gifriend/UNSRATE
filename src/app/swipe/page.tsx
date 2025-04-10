@@ -1,13 +1,13 @@
 "use client"
 import { useState } from 'react';
-import Header from '../components/Header';
-import SwipeCard from '../components/SwipeCard';
-import ActionButtons from '../components/ActionButtons';
+import SwipeCard from '@/app/components/SwipeCard';
+import ActionButtons from '@/app/components/ActionButtons';
 import { StaticImageData } from 'next/image';
-import mikel from '../assets/img/mikel.png';
-import clarissa from '../assets/img/clarissa.jpg';
-import mario from '../assets/img/mario.jpg';
+import mikel from '@/app/assets/img/mikel.png';
+import clarissa from '@/app/assets/img/clarissa.jpg';
+import mario from '@/app/assets/img/mario.jpg';
 import { Heart } from 'lucide-react';
+import Header from '@/app/components/Header';
 
 interface Profile {
   id: number;
