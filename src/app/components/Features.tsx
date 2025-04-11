@@ -1,18 +1,21 @@
 import Image from "next/image";
 import feature1 from "@/app/assets/img/feature1.png";
 import feature2 from "@/app/assets/img/feature2.png";
+import feature3 from "@/app/assets/img/feature3.png";
+import feature4 from "@/app/assets/img/feature4.png";
 
 const Features = () => {
   return (
     <section className="container mx-auto px-4 xl:max-w-[1200px]">
       <h2 className="text-pink-500 text-2xl font-bold mt-16 mb-4 text-center">
-        Telah dipakai 100+ mahasiswa cari tamang
+        Satu kampus, banyak cerita
       </h2>
       <p className="tracking-wide text-base/relaxed text-center">
-        Don't reinvent the wheel.
+        Lebih gampang nyambung karena kalian ngerti struggle yang sama.
       </p>
       <p className="tracking-wide text-base/relaxed text-center">
-        Adopt proven retention strategies from the industry.
+        Gak usah cari di kolom komentar kampus—di sini tempatnya yang serius
+        tapi santai.
       </p>
 
       <div className="md:flex justify-center gap-8  bg-card-green text-card-green-d px-4 mt-4 rounded-4xl">
@@ -56,7 +59,7 @@ const Features = () => {
         </div>
         <div className="xl:max-w-1/2">
           <Image
-            src={feature1}
+            src={feature2}
             className="w-full pb-2 md:pt-6"
             alt="test"
             width={1920}
@@ -80,7 +83,7 @@ const Features = () => {
         </div>
         <div className="xl:max-w-1/2">
           <Image
-            src={feature1}
+            src={feature4}
             className="w-full pb-2 md:pt-6"
             alt="test"
             width={1920}
@@ -105,7 +108,7 @@ const Features = () => {
         </div>
         <div className="xl:max-w-1/2">
           <Image
-            src={feature1}
+            src={feature3}
             className="w-full pb-2 md:pt-6"
             alt="test"
             width={1920}

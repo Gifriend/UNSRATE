@@ -6,9 +6,9 @@ const Nav = () => {
       </div>
       <ul className="flex gap-6">
         <li>
-          <a href="" className="">
+          {/* <a href="" className="">
             Login
-          </a>
+          </a> */}
         </li>
         <li>
           <a href="" className="py-2 px-6 rounded-xl bg-pink-500 text-white">
