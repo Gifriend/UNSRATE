@@ -3,33 +3,21 @@
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import type { StaticImageData } from "next/image"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
-import { Button } from "@/app/components/ui/button"
-import { Input } from "@/app/components/ui/input"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
-import {
-  ArrowLeft,
-  Calendar,
-  ChevronRight,
-  Heart,
-  ImageIcon,
-  Info,
-  MapPin,
-  MoreHorizontal,
-  Paperclip,
-  Send,
-  Smile,
-  User,
-} from "lucide-react"
-import { cn } from "@/app/lib/utils"
+import { use } from "react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ArrowLeft, Calendar, Heart, ImageIcon, Info, MapPin, MoreHorizontal, Paperclip, Send, Smile, User } from 'lucide-react'
+import { cn } from "@/lib/utils"
+import Header from "@/components/Header"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 // Import gambar
-import mikel from "@/app/assets/img/mikel.png"
-import clarissa from "@/app/assets/img/clarissa.jpg"
-import mario from "@/app/assets/img/mario.jpg"
-import Header from "@/app/components/Header"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/app/components/ui/dropdown-menu"
+import mikel from "../../assets/img/mikel.png"
+import clarissa from "../../assets/img/clarissa.jpg"
+import mario from "../../assets/img/mario.jpg"
 
 interface Message {
   id: number
@@ -37,6 +25,7 @@ interface Message {
   text: string
   timestamp: string
   seen?: boolean
+  liked?: boolean
 }
 
 interface MatchInfo {
@@ -51,15 +40,18 @@ interface MatchInfo {
   matchDate: string
 }
 
-interface ChatPageProps {
-  params: {
+// Perbaikan tipe untuk Next.js App Router
+type ChatPageProps = {
+  params: Promise<{
     id: string
-  }
-  searchParams: Record<string, string | string[] | undefined>
+  }>
+  searchParams?: Record<string, string | string[] | undefined>
 }
 
-export default function ChatPage({ params }: ChatPageProps) {
-  const id = Number.parseInt(params.id)
+export default function ChatPage({ params, searchParams }: ChatPageProps) {
+  // Unwrap params menggunakan React.use()
+  const unwrappedParams = use(params)
+  const id = Number.parseInt(unwrappedParams.id)
 
   // Data match berdasarkan ID
   const matchesData: Record<number, MatchInfo> = {
@@ -204,6 +196,10 @@ export default function ChatPage({ params }: ChatPageProps) {
     setNewMessage("")
   }
 
+  const handleLikeMessage = (messageId: number) => {
+    setMessages(messages.map((msg) => (msg.id === messageId ? { ...msg, liked: !msg.liked } : msg)))
+  }
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <Header />
@@ -217,7 +213,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                 <CardContent className="p-6 flex flex-col items-center text-center">
                   <Link href={`/profile/${matchInfo.id}`} className="group">
                     <Avatar className="h-24 w-24 mb-4 ring-2 ring-transparent group-hover:ring-pink-500 transition-all">
-                      <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
+                      <AvatarImage src={matchInfo.image.src || "/placeholder.svg"} alt={matchInfo.name} />
                       <AvatarFallback className="text-2xl">{matchInfo.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="absolute -right-1 -top-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -268,7 +264,11 @@ export default function ChatPage({ params }: ChatPageProps) {
                           <User className="h-4 w-4 mr-2" /> View Profile
                         </Button>
                       </Link>
-                      <Button variant="outline" className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50" onClick={handleReport}>
+                      <Button
+                        variant="outline"
+                        className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50"
+                        onClick={handleReport}
+                      >
                         <Info className="h-4 w-4 mr-2" /> Report
                       </Button>
                     </div>
@@ -289,7 +289,7 @@ export default function ChatPage({ params }: ChatPageProps) {
 
                   <Link href={`/profile/${matchInfo.id}`} className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
-                      <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
+                      <AvatarImage src={matchInfo.image.src || "/placeholder.svg"} alt={matchInfo.name} />
                       <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -305,7 +305,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                       <MoreHorizontal className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-white">
+                  <DropdownMenuContent align="end">
                     <Link href={`/profile/${matchInfo.id}`}>
                       <DropdownMenuItem>
                         <User className="h-4 w-4 mr-2" /> View Profile
@@ -334,7 +334,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                   >
                     {message.sender === "match" && (
                       <Avatar className="h-8 w-8 mr-2 self-end">
-                        <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
+                        <AvatarImage src={matchInfo.image.src || "/placeholder.svg"} alt={matchInfo.name} />
                         <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
                       </Avatar>
                     )}
@@ -354,7 +354,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                         {message.sender === "user" && message.seen && <span className="ml-2">Seen</span>}
 
                         {/* Like button for messages */}
-                        {/* {message.sender === "match" && (
+                        {message.sender === "match" && (
                           <button
                             className={cn(
                               "ml-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity",
@@ -369,7 +369,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                               )}
                             />
                           </button>
-                        )} */}
+                        )}
                       </div>
                     </div>
                   </div>
@@ -379,7 +379,7 @@ export default function ChatPage({ params }: ChatPageProps) {
                 {isTyping && (
                   <div className="flex justify-start">
                     <Avatar className="h-8 w-8 mr-2 self-end">
-                      <AvatarImage src={matchInfo.image.src} alt={matchInfo.name} />
+                      <AvatarImage src={matchInfo.image.src || "/placeholder.svg"} alt={matchInfo.name} />
                       <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="bg-muted px-4 py-3 rounded-2xl rounded-bl-none">

@@ -3,18 +3,18 @@
 import { useState } from "react"
 import Link from "next/link"
 import type { StaticImageData } from "next/image"
-import { Input } from "@/app/components/ui/input"
-import { Button } from "@/app/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, MessageCircle, User } from "lucide-react"
-import { cn } from "@/app/lib/utils"
+import { cn } from "@/lib/utils"
 
 // Import gambar
 import mikel from "@/app/assets/img/mikel.png"
 import clarissa from "@/app/assets/img/clarissa.jpg"
 import mario from "@/app/assets/img/mario.jpg"
 import veronica from "@/app/assets/img/veronica.jpg"
-import Header from "@/app/components/Header"
+import Header from "@/components/Header"
 
 interface Match {
   id: number

@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useRef } from "react"
 import Image from "next/image"
 import { Camera, Upload, X } from "lucide-react"
-import { Button } from "@/app/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   Modal,
   ModalContent,
@@ -14,7 +14,7 @@ import {
   ModalDescription,
   ModalFooter,
   ModalTrigger,
-} from "@/app/components/ui/modal"
+} from "@/components/ui/modal"
 
 interface PhotoUploadModalProps {
   onSave: (file: File) => void

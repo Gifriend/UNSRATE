@@ -1,13 +1,13 @@
 "use client"
 import Link from 'next/link';
 import Image from 'next/image';
-import satria from '../src/app/assets/img/satria.jpg';
+import satria from '../app/assets/img/satria.jpg';
 import { usePathname } from "next/navigation"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
-import { cn } from "@/app/lib/utils"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
 import { Heart, LogOut, MessageCircle, User } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu';
-import { Button } from './ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
 
 export default function Header() {
   const pathname = usePathname()

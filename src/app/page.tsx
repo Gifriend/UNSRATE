@@ -1,8 +1,8 @@
-import Footer from "./components/Footer";
-import Nav from "./components/Nav";
-import Hero from "./components/Hero";
-import Features from "./components/Features";
-import FAQ2 from "./components/FAQ";
+import Footer from "../components/Footer";
+import Nav from "../components/Nav";
+import Hero from "../components/Hero";
+import Features from "../components/Features";
+import FAQ2 from "../components/FAQ";
 import Image from "next/image";
 import cloud2 from "@/app/assets/img/cloudy2.png";
 import mikel from "@/app/assets/img/mikel.png";
@@ -11,7 +11,7 @@ import mario from "@/app/assets/img/mario.jpg";
 
 const App = () => {
   return (
-    <main className="w-screen pt-4">
+    <main className="w-screen pt-4 overflow-x-hidden">
       <div className="top-clouds">
         <Image
           src={cloud2}

@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { Mail, Lock, ArrowRight, User } from "lucide-react"
-import { Input } from "@/app/components/ui/input"
-import { Button } from "@/app/components/ui/button"
-import { Label } from "@/app/components/ui/label"
-import { cn } from "@/app/lib/utils"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
+import { cn } from "@/lib/utils"
 import "@/app/assets/css/mobile-slider.css"
 import Link from "next/link"
 

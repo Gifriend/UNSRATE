@@ -5,16 +5,16 @@ import satria from '../assets/img/satria.jpg';
 import satria2 from '../assets/img/satria1.jpg';
 import satria3 from '../assets/img/satria2.jpg';
 import Image, { type StaticImageData } from "next/image"
-import Header from "@/app/components/Header"
-import { Button } from "@/app/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
-import { Card, CardContent } from "@/app/components/ui/card"
-import { Badge } from "@/app/components/ui/badge"
-import { Input } from "@/app/components/ui/input"
-import { Textarea } from "@/app/components/ui/textarea"
+import Header from "@/components/Header"
+import { Button } from "@/components/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Camera, Check, Edit, Plus, Save, Settings, X } from "lucide-react"
-import { PhotoUploadModal } from "@/app/components/photo-upload-modal"
-import { cn } from "@/app/lib/utils"
+import { PhotoUploadModal } from "@/components/photo-upload-modal"
+import { cn } from "@/lib/utils"
 
 interface UserProfile {
   name: string

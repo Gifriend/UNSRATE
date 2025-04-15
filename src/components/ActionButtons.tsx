@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/app/components/ui/button"
+import { Button } from "@/components/ui/button"
 import { Heart, Star, X } from "lucide-react"
 
 interface ActionButtonsProps {

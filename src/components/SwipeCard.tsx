@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Image, { type StaticImageData } from "next/image"
-import { Badge } from "@/app/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { Bookmark, GraduationCap, MapPin } from "lucide-react"
-import { cn } from "@/app/lib/utils"
+import { cn } from "@/lib/utils"
 
 interface Profile {
   id: number

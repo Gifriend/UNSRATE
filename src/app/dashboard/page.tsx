@@ -2,13 +2,13 @@
 
 import { type SetStateAction, useState } from "react"
 import Head from "next/head"
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/components/ui/avatar"
-import { Button } from "@/app/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card"
-import { Input } from "@/app/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, CheckCircle, ChevronDown, Filter, LogOut, RefreshCw, Search, User, Users } from "lucide-react"
-import { Badge } from "@/app/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 
 interface Student {
