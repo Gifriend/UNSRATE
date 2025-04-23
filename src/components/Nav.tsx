@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const Nav = () => {
   return (
     <nav className="flex justify-between items-center px-4 mb-16">
@@ -11,9 +13,9 @@ const Nav = () => {
           </a> */}
         </li>
         <li>
-          <a href="" className="py-2 px-6 rounded-xl bg-pink-500 text-white">
+          <Link href="/auth" className="py-2 px-6 rounded-xl bg-pink-500 text-white">
             Get started
-          </a>
+          </Link>
         </li>
       </ul>
     </nav>

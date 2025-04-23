@@ -15,7 +15,7 @@ const Hero = () => {
       </p>
       <div id="cta" className="pt-6 flex gap-8  ">
         <Link
-          href="/login"
+          href="/auth"
           className="text-[20px] border-2 py-2 px-6 rounded-xl  text-pink-500 hover:scale-[1.2] transition-all"
         >
           {" "}
