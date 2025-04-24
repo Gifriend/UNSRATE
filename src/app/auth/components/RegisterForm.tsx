@@ -15,33 +15,36 @@ interface RegisterFormProps {
 }
 
 interface RegisterData {
-  fullName: string;
-  nim: number;
+  fullname: string;
+  nim: string;
   email: string;
   password: string;
+  verified: boolean;
 }
 
-interface RegisterResponse {
-  token: {
-    access_token: string;
-    refresh_token: string;
-  };
-  user: {
-    id: string;
-    nim: number,
-    email: string;
-    name: string;
-  };
-}
+// interface RegisterResponse {
+//   token: {
+//     access_token: string;
+//     refresh_token: string;
+//   };
+//   user: {
+//     id: string;
+//     nim: string,
+//     email: string;
+//     name: string;
+//     verified: boolean;
+//   };
+// }
 
 export default function RegisterForm({ setError, isMobile }: RegisterFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [registerData, setRegisterData] = useState<RegisterData>({
-    fullName: "",
-    nim : 0,
+    fullname: "",
+    nim : "",
     email: "",
-    password: ""
+    password: "",
+    verified: false
   })
 
   // Handle input changes for register form
@@ -49,7 +52,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
     const { id, value } = e.target;
     setRegisterData({
       ...registerData,
-      [id.replace(`name-register${isMobile ? '-mobile' : ''}`, "fullName")
+      [id.replace(`name-register${isMobile ? '-mobile' : ''}`, "fullname")
          .replace(`email-register${isMobile ? '-mobile' : ''}`, "email")
          .replace(`nim-register${isMobile ? '-mobile' : ''}`, "nim")
          .replace(`password-register${isMobile ? '-mobile' : ''}`, "password")]: value
@@ -63,10 +66,10 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
     setError("");
     
     try {
-      const response = await api.post<RegisterResponse>('/auth/register', registerData);
+      const response = await api.post('/auth/register', registerData);
       
       // Store token in localStorage or cookies
-      if(response.status == 200) {
+      if(response.status == 200 || response.status == 201) {
         const accessToken = response.data.token.access_token;
         const refreshToken = response.data.token.refresh_token;
         
@@ -74,6 +77,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
       document.cookie = `refresh_token=${refreshToken}; path=/;`;
 
       window.location.href = '/swipe';
+    console.log(response.data);
       }
       if(response.status == 400) {
         setError("Registration failed. Please check your details and try again.");
@@ -106,7 +110,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
             id={`name-register${suffix}`}
             placeholder="John Doe" 
             className="pl-10"
-            value={registerData.fullName}
+            value={registerData.fullname}
             onChange={handleRegisterChange}
             required
           />
