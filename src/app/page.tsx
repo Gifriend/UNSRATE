@@ -11,7 +11,7 @@ import mario from "@/app/assets/img/mario.jpg";
 
 const App = () => {
   return (
-    <main className="w-screen pt-4 overflow-x-hidden">
+    <main className="pt-4 overflow-x-hidden">
       <div className="top-clouds">
         <Image
           src={cloud2}
