@@ -62,7 +62,7 @@ export default function AuthSlider() {
             >
               <div className="flex flex-col items-center justify-center h-full">
                 <h2 className="mb-2 text-center text-3xl font-bold text-black">Sign In</h2>
-                <p className="mb-6 text-center text-muted-foreground text-black">Welcome back! Please login to your account</p>
+                <p className="mb-2 text-center text-muted-foreground text-black">Welcome back! Please login to your account</p>
 
                 <LoginForm setError={setError} isMobile={true} />
 
@@ -90,7 +90,7 @@ export default function AuthSlider() {
                 <h2 className="mb-2 text-center text-3xl font-bold text-black">Create Account</h2>
                 <p className="mb-6 text-center text-muted-foreground text-black">Sign up to get started with our service</p>
 
-                <RegisterForm setError={setError} isMobile={true} />
+                <RegisterForm setError={setError} isMobile={true}  onRegisterSuccess={toggleForm}/>
 
                 <div className="mt-8 text-center">
                   <p className="mb-2 text-sm text-muted-foreground">Already have an account?</p>
@@ -107,7 +107,7 @@ export default function AuthSlider() {
           </div>
         ) : (
           // Desktop View (above 767px)
-          <div className="flex h-[500px] flex-col md:flex-row overflow-hidden">
+          <div className="flex h-[550px] flex-col md:flex-row overflow-hidden">
             {/* Left Panel (Login) */}
             <div className="flex flex-1 flex-col items-center justify-center p-8 md:order-1 relative overflow-hidden">
               <div
@@ -135,10 +135,10 @@ export default function AuthSlider() {
                     : "-translate-x-full opacity-0 md:absolute",
                 )}
               >
-                <h2 className="mb-2 text-center text-3xl font-bold">Create Account</h2>
-                <p className="mb-6 text-center text-muted-foreground">Sign up to get started with our service</p>
+                <h2 className="mb-1 text-center text-3xl font-bold">Create Account</h2>
+                <p className="mb-1 text-center text-muted-foreground">Sign up to get started with our service</p>
 
-                <RegisterForm setError={setError} isMobile={false} />
+                <RegisterForm setError={setError} isMobile={false} onRegisterSuccess={toggleForm}/>
               </div>
             </div>
 

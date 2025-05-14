@@ -12,6 +12,7 @@ import { api } from "@/app/services/api"
 interface RegisterFormProps {
   setError: (error: string) => void;
   isMobile: boolean;
+  onRegisterSuccess: () => void;
 }
 
 interface RegisterData {
@@ -19,6 +20,7 @@ interface RegisterData {
   nim: string;
   email: string;
   password: string;
+  age: string;
   verified: boolean;
 }
 
@@ -36,13 +38,14 @@ interface RegisterData {
 //   };
 // }
 
-export default function RegisterForm({ setError, isMobile }: RegisterFormProps) {
+export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: RegisterFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [registerData, setRegisterData] = useState<RegisterData>({
     fullname: "",
     nim : "",
     email: "",
+    age: "",
     password: "",
     verified: false
   })
@@ -55,6 +58,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
       [id.replace(`name-register${isMobile ? '-mobile' : ''}`, "fullname")
          .replace(`email-register${isMobile ? '-mobile' : ''}`, "email")
          .replace(`nim-register${isMobile ? '-mobile' : ''}`, "nim")
+         .replace(`age-register${isMobile ? '-mobile' : ''}`, "age")
          .replace(`password-register${isMobile ? '-mobile' : ''}`, "password")]: value
     });
   }
@@ -67,34 +71,32 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
     
     try {
       const response = await api.post('/auth/register', registerData);
-      
-      // Store token in localStorage or cookies
-      if(response.status == 200 || response.status == 201) {
-        const accessToken = response.data.token.access_token;
-        const refreshToken = response.data.token.refresh_token;
-        
-      document.cookie = `access_token=${accessToken}; path=/;`;
-      document.cookie = `refresh_token=${refreshToken}; path=/;`;
-
-      window.location.href = '/swipe';
-    console.log(response.data);
+    
+      if (response.status === 200 || response.status === 201) {
+        const tokenData = response.data.token;
+    
+        if (tokenData?.access_token && tokenData?.refresh_token) {
+          document.cookie = `access_token=${tokenData.access_token}; path=/;`;
+          document.cookie = `refresh_token=${tokenData.refresh_token}; path=/;`;
+    
+          // window.location.href = '/swipe';
+          onRegisterSuccess(); 
+        } else {
+          setError("Registrasi berhasil tetapi token tidak tersedia.");
+        }
       }
-      if(response.status == 400) {
-        setError("Registration failed. Please check your details and try again.");
-      }
-      if(response.status == 409) {
-        setError("User with this NIM or email already exists");
-      }
-      
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Registration failed. Please try again.");
+        if (error.response?.status === 409) {
+          setError("Pengguna dengan NIM atau email ini sudah terdaftar.");
+        } else {
+          setError(error.response?.data?.message || "Registrasi gagal. Silakan coba lagi.");
+        }
       } else {
-        setError("An unexpected error occurred during registration.");
+        setError("Terjadi kesalahan tak terduga saat registrasi.");
       }
     } finally {
       setIsLoading(false);
-      setError(""); 
     }
   }
 
@@ -102,7 +104,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
 
   return (
     <form className="space-y-4 w-full max-w-sm" onSubmit={handleRegister}>
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor={`name-register${suffix}`} className="text-black">Full Name</Label>
         <div className="relative">
           <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -117,7 +119,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor={`nim-register${suffix}`} className="text-black">NIM</Label>
         <div className="relative">
           <Fingerprint className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -133,7 +135,7 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
         <Label htmlFor={`email-register${suffix}`} className="text-black">Email</Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -149,7 +151,23 @@ export default function RegisterForm({ setError, isMobile }: RegisterFormProps) 
         </div>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1">
+        <Label htmlFor={`email-register${suffix}`} className="text-black">Age</Label>
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input 
+            id={`age-register${suffix}`}
+            type="age" 
+            placeholder="18" 
+            className="pl-10"
+            value={registerData.age}
+            onChange={handleRegisterChange}
+            required
+          />
+        </div>
+      </div>
+
+      <div className="space-y-1">
         <Label htmlFor={`password-register${suffix}`} className="text-black">Password</Label>
         <div className="relative">
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
