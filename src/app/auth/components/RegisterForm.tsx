@@ -5,7 +5,7 @@ import { Mail, Lock, ArrowRight, User, Fingerprint } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import axios from "axios"
 import { api } from "@/app/services/api"
 
@@ -39,7 +39,7 @@ interface RegisterData {
 // }
 
 export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: RegisterFormProps) {
-  const router = useRouter()
+  // const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [registerData, setRegisterData] = useState<RegisterData>({
     fullname: "",

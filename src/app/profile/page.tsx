@@ -12,7 +12,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Camera, Check, Edit, Plus, Save, Settings, X } from "lucide-react"
+import { Camera, Check, Edit, Plus, Save, X } from "lucide-react"
 import { PhotoUploadModal } from "@/components/photo-upload-modal"
 import { cn } from "@/lib/utils"
 

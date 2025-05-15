@@ -5,7 +5,7 @@ import { Mail, Lock, ArrowRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
+// import { useRouter } from "next/navigation"
 import axios from "axios"
 import { api } from "@/app/services/api"
 
@@ -30,7 +30,7 @@ interface LoginResponse {
 }
 
 export default function LoginForm({ setError, isMobile }: LoginFormProps) {
-  const router = useRouter()
+  // const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [loginData, setLoginData] = useState<LoginCredentials>({
     email: "",

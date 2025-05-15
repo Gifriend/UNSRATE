@@ -1,7 +1,5 @@
 "use client"
 import Link from 'next/link';
-import Image from 'next/image';
-import satria from '../app/assets/img/satria.jpg';
 import { usePathname } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"

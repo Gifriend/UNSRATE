@@ -67,7 +67,7 @@ export default function AuthSlider() {
                 <LoginForm setError={setError} isMobile={true} />
 
                 <div className="mt-8 text-center">
-                  <p className="mb-2 text-sm text-muted-foreground">Don't have an account?</p>
+                  <p className="mb-2 text-sm text-muted-foreground">Dont have an account?</p>
                   <button
                     onClick={toggleForm}
                     className="inline-flex items-center justify-center rounded-md border border-pink-600 bg-transparent px-4 py-2 text-sm font-medium text-pink-600 hover:bg-pink-50 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2"

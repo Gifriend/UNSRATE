@@ -121,7 +121,7 @@ export default function ProfileViewPage() {
           <User className="h-16 w-16 text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">Profile Not Found</h1>
           <p className="text-muted-foreground mb-6">
-            The profile you're looking for doesn't exist or has been removed.
+            The profile you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
           <Button onClick={() => router.back()}>Go Back</Button>
         </div>
@@ -281,7 +281,7 @@ export default function ProfileViewPage() {
           <TabsContent value="photos" className="space-y-4">
             <Card>
               <CardContent className="p-4 md:p-6">
-                <h2 className="font-medium text-lg md:text-xl mb-4">{profile.name}'s Photos</h2>
+                <h2 className="font-medium text-lg md:text-xl mb-4">{profile.name}&apos;s Photos</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {profile.images.map((image, index) => (
                     <div
