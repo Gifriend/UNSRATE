@@ -3,12 +3,12 @@ import { notFound } from 'next/navigation';
 
 type PageProps = {
   params: {
-    id: string;
+    id?: string;
   };
 };
 
 export default async function ChatPage({ params }: PageProps) {
-  const id = parseInt(params.id);
+  const id = Number(params.id);
 
   if (isNaN(id)) {
     notFound();
