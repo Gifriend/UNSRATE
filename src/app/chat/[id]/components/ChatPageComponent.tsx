@@ -56,12 +56,8 @@ interface MatchInfo {
   matchDate: string;
 }
 
-interface ChatProps {
-  id: number;
-}
-
-export default function ChatPageComponent({ id }: ChatProps) {
-//   const id = id;
+export default function ChatPageComponent({ params }: { params: { id: string } }) {
+  const {id} = params;
 
   // Data match berdasarkan ID
   const matchesData: Record<number, MatchInfo> = {
@@ -123,7 +119,7 @@ export default function ChatPageComponent({ id }: ChatProps) {
   };
 
   // Ambil data match berdasarkan ID, atau gunakan default jika tidak ditemukan
-  const matchInfo = matchesData[id] || matchesData[1];
+  const matchInfo = matchesData[Number(id)] || matchesData[1];
 
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, sender: 'match', text: 'Halo!', timestamp: '10:30', seen: true },

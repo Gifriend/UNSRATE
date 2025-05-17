@@ -23,7 +23,7 @@ export const api = axios.create({
   const getCookieValue = (name: string): string | null => {
   if (typeof window === "undefined") return null; 
   const cookies = document.cookie.split(";");
-  for (let cookie of cookies) {
+  for (const cookie of cookies) {
     const [cookieName, cookieValue]= cookie.split("=").map(c => c.trim());
     if (cookieName === name) {
       return cookieValue;

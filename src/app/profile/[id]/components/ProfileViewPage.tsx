@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image, { type StaticImageData } from "next/image"
-import { useParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import Header from "@/components/Header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -12,12 +12,12 @@ import { ArrowLeft, Calendar, Heart, MapPin, MessageCircle, Share2, User } from 
 import { cn } from "@/lib/utils"
 
 // Import gambar
-import mikel from "../../assets/img/mikel.png"
-import mikel2 from "../../assets/img/mikel2.jpg"
-import clarissa from "../../assets/img/clarissa.jpg"
-import clarissa2 from "../../assets/img/clarissa2.jpg"
-import mario from "../../assets/img/mario.jpg"
-import mario2 from "../../assets/img/mario2.png"
+import mikel from "../../../assets/img/mikel.png"
+import mikel2 from "../../../assets/img/mikel2.jpg"
+import clarissa from "../../../assets/img/clarissa.jpg"
+import clarissa2 from "../../../assets/img/clarissa2.jpg"
+import mario from "../../../assets/img/mario.jpg"
+import mario2 from "../../../assets/img/mario2.png"
 
 
 interface UserProfile {

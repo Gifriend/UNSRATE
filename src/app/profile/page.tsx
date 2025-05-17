@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image, { type StaticImageData } from "next/image"
+import Image from "next/image"
 import Header from "@/components/Header"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -82,7 +82,7 @@ export default function ProfilePage() {
     }
 
     fetchUserProfile()
-  }, [])
+  }, [toast])
 
   // Handle about section editing
   const handleSaveAbout = async () => {

@@ -1,18 +1,7 @@
 import ChatPageComponent from './components/ChatPageComponent';
-import { notFound } from 'next/navigation';
 
-type PageProps = {
-  params: {
-    id?: string;
-  };
-};
+export default async function ChatPage({ params }: {params: Promise<{id: string}>}) {
+  const {id} = await params;
 
-export default async function ChatPage({ params }: PageProps) {
-  const id = Number(params.id);
-
-  if (isNaN(id)) {
-    notFound();
-  }
-
-  return <ChatPageComponent id={id} />;
+  return <ChatPageComponent params={{id}} />;
 }
