@@ -87,12 +87,12 @@ export default function AuthSlider() {
               )}
             >
               <div className="flex flex-col items-center justify-center h-full">
-                <h2 className="mb-2 text-center text-3xl font-bold text-black">Create Account</h2>
-                <p className="mb-6 text-center text-muted-foreground text-black">Sign up to get started with our service</p>
+                <h2 className="mb-1 text-center text-lg font-bold text-black">Create Account</h2>
+                <p className="mb-3 text-center text-muted-foreground text-black">Sign up to get started with our service</p>
 
                 <RegisterForm setError={setError} isMobile={true}  onRegisterSuccess={toggleForm}/>
 
-                <div className="mt-8 text-center">
+                <div className="mt-3 text-center">
                   <p className="mb-2 text-sm text-muted-foreground">Already have an account?</p>
                   <button
                     onClick={toggleForm}

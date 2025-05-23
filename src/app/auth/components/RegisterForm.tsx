@@ -1,13 +1,27 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Mail, Lock, ArrowRight, User, Fingerprint } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
+import { useState } from 'react';
+import {
+  Mail,
+  Lock,
+  ArrowRight,
+  User,
+  Fingerprint,
+  Calendar,
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 // import { useRouter } from "next/navigation"
-import axios from "axios"
-import { api } from "@/app/services/api"
+import axios from 'axios';
+import { api } from '@/app/services/api';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface RegisterFormProps {
   setError: (error: string) => void;
@@ -21,96 +35,95 @@ interface RegisterData {
   email: string;
   password: string;
   age: string;
+  gender: string;
   verified: boolean;
 }
 
-// interface RegisterResponse {
-//   token: {
-//     access_token: string;
-//     refresh_token: string;
-//   };
-//   user: {
-//     id: string;
-//     nim: string,
-//     email: string;
-//     name: string;
-//     verified: boolean;
-//   };
-// }
-
-export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: RegisterFormProps) {
+export default function RegisterForm({
+  setError,
+  isMobile,
+  onRegisterSuccess,
+}: RegisterFormProps) {
   // const router = useRouter()
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [registerData, setRegisterData] = useState<RegisterData>({
-    fullname: "",
-    nim : "",
-    email: "",
-    age: "",
-    password: "",
-    verified: false
-  })
+    fullname: '',
+    nim: '',
+    email: '',
+    age: '',
+    password: '',
+    gender: '',
+    verified: false,
+  });
 
   // Handle input changes for register form
   const handleRegisterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setRegisterData({
       ...registerData,
-      [id.replace(`name-register${isMobile ? '-mobile' : ''}`, "fullname")
-         .replace(`email-register${isMobile ? '-mobile' : ''}`, "email")
-         .replace(`nim-register${isMobile ? '-mobile' : ''}`, "nim")
-         .replace(`age-register${isMobile ? '-mobile' : ''}`, "age")
-         .replace(`password-register${isMobile ? '-mobile' : ''}`, "password")]: value
+      [id
+        .replace(`name-register${isMobile ? '-mobile' : ''}`, 'fullname')
+        .replace(`email-register${isMobile ? '-mobile' : ''}`, 'email')
+        .replace(`nim-register${isMobile ? '-mobile' : ''}`, 'nim')
+        .replace(`age-register${isMobile ? '-mobile' : ''}`, 'age')
+        .replace(`password-register${isMobile ? '-mobile' : ''}`, 'password')]:
+        value,
     });
-  }
+  };
 
   // Handle registration submission
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
-    
+    setError('');
+
     try {
       const response = await api.post('/auth/register', registerData);
-    
+
       if (response.status === 200 || response.status === 201) {
         const tokenData = response.data.token;
-    
+
         if (tokenData?.access_token && tokenData?.refresh_token) {
           document.cookie = `access_token=${tokenData.access_token}; path=/;`;
           document.cookie = `refresh_token=${tokenData.refresh_token}; path=/;`;
-    
+
           // window.location.href = '/swipe';
-          onRegisterSuccess(); 
+          onRegisterSuccess();
         } else {
-          setError("Registrasi berhasil tetapi token tidak tersedia.");
+          setError('Registrasi berhasil tetapi token tidak tersedia.');
         }
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 409) {
-          setError("Pengguna dengan NIM atau email ini sudah terdaftar.");
+          setError('Pengguna dengan NIM atau email ini sudah terdaftar.');
         } else {
-          setError(error.response?.data?.message || "Registrasi gagal. Silakan coba lagi.");
+          setError(
+            error.response?.data?.message ||
+              'Registrasi gagal. Silakan coba lagi.'
+          );
         }
       } else {
-        setError("Terjadi kesalahan tak terduga saat registrasi.");
+        setError('Terjadi kesalahan tak terduga saat registrasi.');
       }
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   const suffix = isMobile ? '-mobile' : '';
 
   return (
     <form className="space-y-4 w-full max-w-sm" onSubmit={handleRegister}>
       <div className="space-y-1">
-        <Label htmlFor={`name-register${suffix}`} className="text-black">Full Name</Label>
+        <Label htmlFor={`name-register${suffix}`} className="text-black">
+          Full Name
+        </Label>
         <div className="relative">
           <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             id={`name-register${suffix}`}
-            placeholder="John Doe" 
+            placeholder="John Doe"
             className="pl-10"
             value={registerData.fullname}
             onChange={handleRegisterChange}
@@ -120,12 +133,14 @@ export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: 
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor={`nim-register${suffix}`} className="text-black">NIM</Label>
+        <Label htmlFor={`nim-register${suffix}`} className="text-black">
+          NIM
+        </Label>
         <div className="relative">
           <Fingerprint className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             id={`nim-register${suffix}`}
-            placeholder="21200123" 
+            placeholder="21200123"
             className="pl-10"
             value={registerData.nim}
             type="number"
@@ -136,13 +151,15 @@ export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: 
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor={`email-register${suffix}`} className="text-black">Email</Label>
+        <Label htmlFor={`email-register${suffix}`} className="text-black">
+          Email
+        </Label>
         <div className="relative">
           <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             id={`email-register${suffix}`}
-            type="email" 
-            placeholder="m@example.com" 
+            type="email"
+            placeholder="m@example.com"
             className="pl-10"
             value={registerData.email}
             onChange={handleRegisterChange}
@@ -152,28 +169,49 @@ export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: 
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor={`email-register${suffix}`} className="text-black">Age</Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input 
-            id={`age-register${suffix}`}
-            type="age" 
-            placeholder="18" 
-            className="pl-10"
-            value={registerData.age}
-            onChange={handleRegisterChange}
-            required
-          />
+        <Label htmlFor={`age-register${suffix}`} className="text-black">
+          Age & Gender
+        </Label>
+        <div className="flex gap-2">
+          <div className="relative w-1/2">
+            <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              id={`age-register${suffix}`}
+              type="number"
+              placeholder="18"
+              className="pl-10"
+              value={registerData.age}
+              onChange={handleRegisterChange}
+              required
+            />
+          </div>
+          <div className="w-1/2">
+            <Select
+              value={registerData.gender}
+              onValueChange={(value) =>
+                setRegisterData({ ...registerData, gender: value })
+              }>
+              <SelectTrigger className="w-full text-black border-black">
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Laki-laki">Laki-laki</SelectItem>
+                <SelectItem value="Perempuan">Perempuan</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor={`password-register${suffix}`} className="text-black">Password</Label>
+        <Label htmlFor={`password-register${suffix}`} className="text-black">
+          Password
+        </Label>
         <div className="relative">
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             id={`password-register${suffix}`}
-            type="password" 
+            type="password"
             className="pl-10"
             value={registerData.password}
             onChange={handleRegisterChange}
@@ -182,14 +220,13 @@ export default function RegisterForm({ setError, isMobile, onRegisterSuccess }: 
         </div>
       </div>
 
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         className="w-full bg-pink-600 hover:bg-pink-700 text-white"
-        disabled={isLoading}
-      >
-        {isLoading ? "Signing Up..." : "Sign Up"}
+        disabled={isLoading}>
+        {isLoading ? 'Signing Up...' : 'Sign Up'}
         {!isLoading && <ArrowRight className="ml-2 h-4 w-4" />}
       </Button>
     </form>
-  )
+  );
 }
