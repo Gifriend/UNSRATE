@@ -187,6 +187,8 @@ export default function RegisterForm({
           </div>
           <div className="w-1/2">
             <Select
+            placeholder='Select Gender'
+            className='text-black border-black'
               value={registerData.gender}
               onValueChange={(value) =>
                 setRegisterData({ ...registerData, gender: value })
@@ -195,8 +197,8 @@ export default function RegisterForm({
                 <SelectValue placeholder="Gender" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Laki-laki">Laki-laki</SelectItem>
-                <SelectItem value="Perempuan">Perempuan</SelectItem>
+                <SelectItem value="Laki-laki">Male</SelectItem>
+                <SelectItem value="Perempuan">Female</SelectItem>
               </SelectContent>
             </Select>
           </div>
