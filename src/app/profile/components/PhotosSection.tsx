@@ -24,14 +24,14 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
       const formData = new FormData()
       formData.append('photo', file)
       
-      const response = await api.post('/users/photos', formData, {
+      const response = await api.post('users/photos', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
       
       if (response.data.statusCode === 200 || response.data.statusCode === 201) {
-        const profileResponse = await api.get('/users/profile')
+        const profileResponse = await api.get('users/profile')
         if (profileResponse.data.statusCode === 200) {
           setProfile(profileResponse.data.data)
         }
@@ -53,7 +53,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
 
   const handleDeletePhoto = useCallback(async (photoId: string) => {
     try {
-      await api.delete(`/users/photos/${photoId}`)
+      await api.delete(`users/photos/${photoId}`)
       
       setProfile(profile => {
         if (!profile) return null
@@ -83,7 +83,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
 
   const handleSetProfilePhoto = useCallback(async (photoUrl: string) => {
     try {
-      await api.put('/users/profile', {
+      await api.put('users/profile', {
         profilePicture: photoUrl
       })
       
@@ -121,7 +121,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
           <PhotoUploadModal
             onSave={handlePhotoUpload}
             triggerButton={
-              <Button variant="outline" size="sm" className="gap-2">
+              <Button variant="outline" size="sm" className="gap-2 hover:cursor-pointer">
                 <Camera className="h-4 w-4" /> Add Photo
               </Button>
             }

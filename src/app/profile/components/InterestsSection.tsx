@@ -32,7 +32,7 @@ export default function InterestsSection({ profile, setProfile }: InterestsSecti
 
   const handleSaveInterests = useCallback(async () => {
     try {
-      await api.patch('/users/profile', {
+      await api.patch('users/profile', {
         interests: editedInterests
       })
       

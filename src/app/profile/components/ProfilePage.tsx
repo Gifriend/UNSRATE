@@ -28,6 +28,7 @@ export default function ProfilePage() {
           variant: "destructive"
         })
       }
+      console.log("Profile data fetched successfully:", response.data.data)
     } catch (error) {
       console.error("Error fetching profile:", error)
       toast({
