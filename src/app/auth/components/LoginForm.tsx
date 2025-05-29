@@ -64,7 +64,7 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
         const refreshToken = payload.data.refresh_token;
 
         document.cookie = `access_token=${accessToken}; path=/; `;
-        document.cookie = `refresh_token=${refreshToken}; path=/; `;
+        document.cookie = `refresh_token=${refreshToken}; path=/; `;  
         window.location.href = '/profile';
         // Router.push('/profile');
       }

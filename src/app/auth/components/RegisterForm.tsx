@@ -15,13 +15,7 @@ import { Label } from '@/components/ui/label';
 // import { useRouter } from "next/navigation"
 import axios from 'axios';
 import { api } from '@/app/services/api';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectItem } from '@/components/ui/select';
 
 interface RegisterFormProps {
   setError: (error: string) => void;
@@ -78,7 +72,7 @@ export default function RegisterForm({
     setError('');
 
     try {
-      const response = await api.post('/auth/register', registerData);
+      const response = await api.post('auth/register', registerData);
 
       if (response.status === 200 || response.status === 201) {
         const tokenData = response.data.token;
@@ -187,19 +181,14 @@ export default function RegisterForm({
           </div>
           <div className="w-1/2">
             <Select
-            placeholder='Select Gender'
-            className='text-black border-black'
+              placeholder="Gender"
+              className="text-black border-black"
               value={registerData.gender}
               onValueChange={(value) =>
                 setRegisterData({ ...registerData, gender: value })
               }>
-              <SelectTrigger className="w-full text-black border-black">
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Laki-laki">Male</SelectItem>
-                <SelectItem value="Perempuan">Female</SelectItem>
-              </SelectContent>
+              <SelectItem value="MALE">MALE</SelectItem>
+              <SelectItem value="FEMALE">FEMALE</SelectItem>
             </Select>
           </div>
         </div>
