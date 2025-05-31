@@ -33,7 +33,7 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
       formData.append('file', file)
 
       // Upload photo to your API endpoint
-      const response = await api.patch('users/photo', formData, {
+      const response = await api.post('users/profile-picture', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
