@@ -45,7 +45,7 @@ export const UserTable = ({
                   <AvatarImage
                     src={
                       user.profilePicture ||
-                      `/placeholder.svg?height=32&width=32`
+                      `/satria1.jpg`
                     }
                     alt={user.fullname}
                   />

@@ -4,13 +4,13 @@ export interface UserProfile {
   nim: string
   email: string
   profilePicture: string | null
-  Photos: {id: string, url: string}[]
-  bio: string | null
-  fakultas: string | null
-  prodi: string | null
+  Photos: string[]
+  bio: string 
+  fakultas: string 
+  prodi: string 
   age: number
-  gender: string | null
-  alamat: string | null
+  gender: string 
+  alamat: string 
   verified: boolean
   interests: string[]
   profileCompletion: number

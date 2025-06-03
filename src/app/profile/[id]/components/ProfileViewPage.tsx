@@ -143,7 +143,7 @@ export default function ProfileViewPage({ params }:  { params: { id: string } })
         <div className="relative mb-6 rounded-xl overflow-hidden bg-muted">
           <div className="aspect-[3/2] md:aspect-[2/1] relative">
             <Image
-              src={profile.images[activeImageIndex] || "/placeholder.svg"}
+              src={profile.images[activeImageIndex] || ""}
               alt={`${profile.name}'s photo`}
               fill
               className="object-cover transition-opacity duration-300"
@@ -290,7 +290,7 @@ export default function ProfileViewPage({ params }:  { params: { id: string } })
                       onClick={() => setActiveImageIndex(index)}
                     >
                       <Image
-                        src={image || "/placeholder.svg"}
+                        src={image || "/img/satria1.jpg"}
                         alt={`Photo ${index + 1}`}
                         fill
                         className="object-cover hover:scale-105 transition-transform duration-300"
