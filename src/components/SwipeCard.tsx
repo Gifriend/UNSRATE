@@ -26,7 +26,7 @@ export default function SwipeCard({ profile }: SwipeCardProps) {
   const displayName = profile.fullname || profile.name
 
   const allImages =
-    profile.images && profile.images.length > 0 ? profile.images : ["/img/satria1.jpg?height=600&width=400"]
+    profile.images && profile.images.length > 0 ? profile.images : ["/placeholder.svg?height=600&width=400"]
 
   return (
     <div className="relative w-full max-w-md mx-auto h-[70vh] bg-background rounded-3xl shadow-lg overflow-hidden border">

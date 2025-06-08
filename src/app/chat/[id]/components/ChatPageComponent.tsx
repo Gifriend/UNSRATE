@@ -580,12 +580,6 @@ export default function ChatPageComponent({
               {/* Message input */}
               <div className="border-t pt-4">
                 <div className="flex items-end gap-2">
-                  <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0">
-                    <Paperclip className="h-5 w-5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0">
-                    <ImageIcon className="h-5 w-5" />
-                  </Button>
                   <div className="relative flex-1">
                     <Input
                       value={newMessage}
@@ -595,9 +589,6 @@ export default function ChatPageComponent({
                       onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                       disabled={!isConnected}
                     />
-                    <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
-                      <Smile className="h-5 w-5" />
-                    </Button>
                   </div>
                   <Button
                     onClick={handleSendMessage}
