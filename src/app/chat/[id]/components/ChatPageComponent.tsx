@@ -1,253 +1,353 @@
-'use client';
-
-import { useState, useRef, useEffect } from 'react';
-import Link from 'next/link';
-import type { StaticImageData } from 'next/image';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  ArrowLeft,
-  Calendar,
-  Heart,
-  ImageIcon,
-  Info,
-  MapPin,
-  MoreHorizontal,
-  Paperclip,
-  Send,
-  Smile,
-  User,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import Header from '@/components/Header';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-// Import gambar
-import mikel from '../../../assets/img/mikel.png';
-import clarissa from '../../../assets/img/clarissa.jpg';
-import mario from '../../../assets/img/mario.jpg';
+"use client"
+import { useState, useRef, useEffect } from "react"
+import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ArrowLeft, Calendar, Heart, ImageIcon, Info, MoreHorizontal, Paperclip, Send, Smile, User } from "lucide-react"
+import { cn } from "@/lib/utils"
+import Header from "@/components/Header"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { wsService } from "@/app/services/websocket"
+import { chatApi, matchApi } from "@/app/services/api"
+import type { Match } from "@/app/types/match"
 
 interface Message {
-  id: number;
-  sender: 'user' | 'match';
-  text: string;
-  timestamp: string;
-  seen?: boolean;
-  liked?: boolean;
+  id: string
+  sender: "user" | "match"
+  text: string
+  timestamp: string
+  seen?: boolean
+  liked?: boolean
 }
 
-interface MatchInfo {
-  id: number;
-  name: string;
-  age: number;
-  online: boolean;
-  location: string;
-  education: string;
-  interests: string[];
-  image: StaticImageData;
-  matchDate: string;
+// Helper function to get user ID from JWT token in cookie
+const getUserIdFromToken = (): string | null => {
+  if (typeof window === "undefined") return null
+
+  const getCookieValue = (name: string): string | null => {
+    const cookies = document.cookie.split(";")
+    for (const cookie of cookies) {
+      const [cookieName, cookieValue] = cookie.split("=").map((c) => c.trim())
+      if (cookieName === name) {
+        return cookieValue
+      }
+    }
+    return null
+  }
+
+  const token = getCookieValue("access_token")
+  if (!token) return null
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]))
+    return payload.sub || payload.id || null
+  } catch (error) {
+    console.error("Error parsing token:", error)
+    return null
+  }
 }
 
-export default function ChatPageComponent({ params }: { params: { id: string } }) {
-  const {id} = params;
+export default function ChatPageComponent({
+  params,
+}: {
+  params: { id: string }
+}) {
+  const { id } = params
 
-  // Data match berdasarkan ID
-  const matchesData: Record<number, MatchInfo> = {
-    1: {
-      id: 1,
-      name: 'Mario',
-      age: 18,
-      online: true,
-      location: 'Manado, Sulawesi Utara',
-      education: 'Computer Science Student',
-      interests: ['AI', 'Mathematics', 'Programming', 'Chess'],
-      image: mario,
-      matchDate: '2 hari yang lalu',
-    },
-    2: {
-      id: 2,
-      name: 'Mikel',
-      age: 21,
-      online: false,
-      location: 'Jakarta',
-      education: 'Music Production',
-      interests: ['Coffee', 'Music', 'Writing', 'Guitar'],
-      image: mikel,
-      matchDate: '1 minggu yang lalu',
-    },
-    3: {
-      id: 3,
-      name: 'Clarissa',
-      age: 20,
-      online: true,
-      location: 'Bandung',
-      education: 'Culinary Arts',
-      interests: ['Food', 'Movies', 'Travel', 'Photography'],
-      image: clarissa,
-      matchDate: '3 hari yang lalu',
-    },
-    4: {
-      id: 4,
-      name: 'Clarissa',
-      age: 20,
-      online: true,
-      location: 'Bandung',
-      education: 'Culinary Arts',
-      interests: ['Food', 'Movies', 'Travel', 'Photography'],
-      image: clarissa,
-      matchDate: 'Hari ini',
-    },
-    5: {
-      id: 5,
-      name: 'Mikel',
-      age: 21,
-      online: false,
-      location: 'Jakarta',
-      education: 'Music Production',
-      interests: ['Coffee', 'Music', 'Writing', 'Guitar'],
-      image: mikel,
-      matchDate: 'Hari ini',
-    },
-  };
-
-  // Ambil data match berdasarkan ID, atau gunakan default jika tidak ditemukan
-  const matchInfo = matchesData[Number(id)] || matchesData[1];
-
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, sender: 'match', text: 'Halo!', timestamp: '10:30', seen: true },
-    {
-      id: 2,
-      sender: 'user',
-      text: 'Hai, apa kabar?',
-      timestamp: '10:31',
-      seen: true,
-    },
-    {
-      id: 3,
-      sender: 'match',
-      text: 'Baik, kamu?',
-      timestamp: '10:32',
-      seen: true,
-    },
-    {
-      id: 4,
-      sender: 'user',
-      text: 'Baik juga! Apa yang sedang kamu lakukan?',
-      timestamp: '10:33',
-      seen: true,
-    },
-    {
-      id: 5,
-      sender: 'match',
-      text: 'Sedang belajar untuk ujian besok. Kamu?',
-      timestamp: '10:35',
-      seen: true,
-    },
-    {
-      id: 6,
-      sender: 'user',
-      text: 'Aku sedang santai saja. Mau ngobrol sebentar?',
-      timestamp: '10:36',
-      seen: true,
-    },
-    {
-      id: 7,
-      sender: 'match',
-      text: 'Boleh! Aku juga butuh istirahat sebentar dari belajar.',
-      timestamp: '10:38',
-      seen: true,
-    },
-  ]);
-
-  const [newMessage, setNewMessage] = useState<string>('');
-  const [isTyping, setIsTyping] = useState<boolean>(false);
-  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  const [matchInfo, setMatchInfo] = useState<Match | null>(null)
+  const [messages, setMessages] = useState<Message[]>([])
+  const [newMessage, setNewMessage] = useState<string>("")
+  const [isTyping, setIsTyping] = useState<boolean>(false)
+  const [isConnected, setIsConnected] = useState(false)
+  const [userId, setUserId] = useState<string>("")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const endOfMessagesRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    endOfMessagesRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
   const handleReport = () => {
-    alert('Anda berhasil melaporkan orang ini');
-  };
+    alert("Anda berhasil melaporkan orang ini")
+  }
 
-  // Simulate typing indicator
+  // Get user ID from token
   useEffect(() => {
-    if (
-      messages.length > 0 &&
-      messages[messages.length - 1].sender === 'user'
-    ) {
-      const timer = setTimeout(() => {
-        setIsTyping(true);
-
-        const typingTimer = setTimeout(() => {
-          setIsTyping(false);
-
-          // Add a response after typing
-          if (Math.random() > 0.5) {
-            const responses = [
-              'Oke, boleh banget!',
-              'Hmm, menarik...',
-              'Iya, aku setuju',
-              'Wah, keren!',
-              'Besok kita ketemu ya?',
-            ];
-
-            const newMsg: Message = {
-              id: messages.length + 1,
-              sender: 'match',
-              text: responses[Math.floor(Math.random() * responses.length)],
-              timestamp: new Date().toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-              seen: true,
-            };
-
-            setMessages((prev) => [...prev, newMsg]);
-          }
-        }, 2000);
-
-        return () => clearTimeout(typingTimer);
-      }, 1000);
-
-      return () => clearTimeout(timer);
+    const userIdFromToken = getUserIdFromToken()
+    if (userIdFromToken) {
+      setUserId(userIdFromToken)
+    } else {
+      setError("No user ID found in token")
     }
-  }, [messages]);
+  }, [])
+
+  // Fetch match info
+  useEffect(() => {
+    const fetchMatchInfo = async () => {
+      if (!id) return
+
+      try {
+        setLoading(true)
+        console.log("Fetching match info for ID:", id)
+
+        const response = await matchApi.getMatchById(id)
+        console.log("API Response:", response)
+
+        // Parse the correct structure: response.data.match
+        let matchData = null
+
+        if (response.data?.match) {
+          // API returns {statusCode, message, match: {...}}
+          matchData = response.data.match
+          console.log("Found match data in response.data.match:", matchData)
+        } else if (response.data?.data) {
+          // Nested data structure
+          matchData = response.data.data
+        } else if (response.data) {
+          // Direct data structure
+          matchData = response.data
+        }
+
+        if (matchData && matchData.matchedUser) {
+          setMatchInfo(matchData)
+          setError(null)
+          console.log("Match info set successfully:", matchData)
+        } else {
+          console.error("No valid match data found in response")
+          setError("Match data not found in API response")
+        }
+      } catch (error) {
+        console.error("Failed to fetch match info:", error)
+        setError("Failed to load match information")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchMatchInfo()
+  }, [id])
+
+  // Fetch message history
+  useEffect(() => {
+    const fetchMessageHistory = async () => {
+      if (!userId || !id) return
+
+      try {
+        console.log("Fetching message history for match:", id)
+        const response = await chatApi.getMessages(id)
+        console.log("Message history response:", response)
+
+        if (Array.isArray(response.data)) {
+          const fetchedMessages = response.data.map((msg: any) => {
+            return {
+              id: msg.id,
+              sender: msg.senderId === userId ? "user" : ("match" as "user" | "match"),
+              text: msg.content || "",
+              timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              seen: msg.isRead || msg.senderId === userId,
+            }
+          })
+          setMessages(fetchedMessages)
+          console.log("Messages processed:", fetchedMessages)
+        } else {
+          console.error("Unexpected message history format:", response.data)
+        }
+      } catch (error) {
+        console.error("Failed to fetch message history:", error)
+      }
+    }
+
+    fetchMessageHistory()
+  }, [id, userId])
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    if (!userId || !id) return
+
+    let retryCount = 0
+    const maxRetries = 3
+
+    const connectWithRetry = async () => {
+      try {
+        await initializeWebSocket()
+      } catch (error) {
+        retryCount++
+        if (retryCount < maxRetries) {
+          console.log(`Retrying connection... (${retryCount}/${maxRetries})`)
+          setTimeout(connectWithRetry, 2000 * retryCount)
+        } else {
+          console.error("Max retries reached. Connection failed.")
+        }
+      }
+    }
+
+    connectWithRetry()
+
+    return () => {
+      if (id) {
+        wsService.leaveRoom(id)
+      }
+      wsService.disconnect()
+      setIsConnected(false)
+    }
+  }, [id, userId])
+
+  const initializeWebSocket = async () => {
+    try {
+      console.log("Attempting to connect to WebSocket...")
+
+      await wsService.connect()
+      setIsConnected(true)
+      console.log("WebSocket connected successfully")
+
+      setTimeout(() => {
+        wsService.joinRoom(id)
+      }, 1000)
+
+      wsService.onMessage((messageData: any) => {
+        console.log("Raw message received:", messageData)
+        console.log("Message data keys:", Object.keys(messageData))
+        console.log("Message content:", messageData.content || messageData.message || messageData.text)
+
+        const messageSender: "user" | "match" = messageData.senderId === userId ? "user" : "match"
+
+        const timestamp = new Date(messageData.createdAt || Date.now()).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+
+        const newMsg: Message = {
+          id: messageData.id || Date.now().toString(),
+          sender: messageSender,
+          text: messageData.content || messageData.message || messageData.text || "",
+          timestamp,
+          seen: messageSender === "user" ? true : false,
+        }
+
+        console.log("Processed message:", newMsg)
+
+        // Remove temp message if this is confirmation of sent message
+        if (messageSender === "user") {
+          setMessages((prev) => {
+            const filtered = prev.filter((msg) => !msg.id.startsWith("temp-"))
+            return [...filtered, newMsg]
+          })
+        } else {
+          setMessages((prev) => [...prev, newMsg])
+        }
+      })
+
+      wsService.onJoinedRoom((data) => {
+        console.log("Successfully joined room:", data)
+      })
+
+      wsService.onLeftRoom((data) => {
+        console.log("Successfully left room:", data)
+      })
+
+      wsService.onError((error) => {
+        console.error("WebSocket error:", error)
+        setIsConnected(false)
+      })
+
+      wsService.onMessageSent((data: any) => {
+        console.log("Message sent acknowledgment:", data)
+      })
+    } catch (error) {
+      console.error("Failed to connect to WebSocket:", error)
+      setIsConnected(false)
+    }
+  }
 
   const handleSendMessage = () => {
-    if (newMessage.trim() === '') return;
+    if (newMessage.trim() === "" || !wsService.isConnected()) return
 
-    const newMsg: Message = {
-      id: messages.length + 1,
-      sender: 'user',
-      text: newMessage,
+    const tempMessage: Message = {
+      id: `temp-${Date.now()}`,
+      sender: "user",
+      text: newMessage.trim(),
       timestamp: new Date().toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
+        hour: "2-digit",
+        minute: "2-digit",
       }),
       seen: false,
-    };
+    }
 
-    setMessages([...messages, newMsg]);
-    setNewMessage('');
-  };
+    // Add message optimistically to UI
+    setMessages((prev) => [...prev, tempMessage])
 
-  const handleLikeMessage = (messageId: number) => {
-    setMessages(
-      messages.map((msg) =>
-        msg.id === messageId ? { ...msg, liked: !msg.liked } : msg
-      )
-    );
-  };
+    // Send to server
+    wsService.sendMessage(id, newMessage.trim())
+    setNewMessage("")
+  }
+
+  const handleLikeMessage = (messageId: string) => {
+    setMessages(messages.map((msg) => (msg.id === messageId ? { ...msg, liked: !msg.liked } : msg)))
+  }
+
+  const formatMatchDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (diffInDays === 0) return "Hari ini"
+    if (diffInDays === 1) return "Kemarin"
+    if (diffInDays < 7) return `${diffInDays} hari yang lalu`
+    return date.toLocaleDateString("id-ID")
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <p>Loading match data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center max-w-lg">
+            <p className="text-red-500 mb-4">{error}</p>
+            <div className="flex justify-center gap-4">
+              <Button onClick={() => window.location.reload()}>Retry</Button>
+              <Link href="/matches">
+                <Button variant="outline">Back to Matches</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!matchInfo || !matchInfo.matchedUser) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        <Header />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <p className="mb-4">Match not found</p>
+            <Link href="/matches">
+              <Button>Back to Matches</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -260,67 +360,53 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
             <div className="hidden md:block md:col-span-3 lg:col-span-3">
               <Card className="sticky top-4">
                 <CardContent className="p-6 flex flex-col items-center text-center">
-                  <Link href={`/profile/${matchInfo.id}`} className="group">
+                  <Link href={`/profile/${matchInfo.matchedUser.id}`} className="group relative">
                     <Avatar className="h-24 w-24 mb-4 ring-2 ring-transparent group-hover:ring-pink-500 transition-all">
                       <AvatarImage
-                        src={matchInfo.image.src || '/placeholder.svg'}
-                        alt={matchInfo.name}
+                        src={matchInfo.matchedUser.profilePicture || "/placeholder.svg"}
+                        alt={matchInfo.matchedUser.fullname}
                       />
-                      <AvatarFallback className="text-2xl">
-                        {matchInfo.name[0]}
-                      </AvatarFallback>
+                      <AvatarFallback className="text-2xl">{matchInfo.matchedUser.fullname[0]}</AvatarFallback>
                     </Avatar>
                     <div className="absolute -right-1 -top-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Badge className="bg-pink-500 hover:bg-pink-600">
-                        View
-                      </Badge>
+                      <Badge className="bg-pink-500 hover:bg-pink-600">View</Badge>
                     </div>
                   </Link>
                   <h2 className="text-xl font-bold mb-1">
-                    {matchInfo.name}, {matchInfo.age}
+                    {matchInfo.matchedUser.fullname}, {matchInfo.matchedUser.age}
                   </h2>
                   <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
-                    <span
-                      className={cn(
-                        'h-2 w-2 rounded-full',
-                        matchInfo.online ? 'bg-emerald-500' : 'bg-gray-300'
-                      )}></span>
-                    <span>{matchInfo.online ? 'Online' : 'Offline'}</span>
+                    <span className="h-2 w-2 rounded-full bg-gray-300"></span>
+                    <span>Offline</span>
                   </div>
 
                   <div className="w-full space-y-4 mt-4 text-left">
                     <div>
                       <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
-                        <MapPin className="h-4 w-4 mr-1" /> Lokasi
-                      </h3>
-                      <p className="text-sm">{matchInfo.location}</p>
-                    </div>
-
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
                         <Calendar className="h-4 w-4 mr-1" /> Match
                       </h3>
-                      <p className="text-sm">{matchInfo.matchDate}</p>
+                      <p className="text-sm">{formatMatchDate(matchInfo.createdAt)}</p>
                     </div>
 
                     <div>
                       <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
-                        <Heart className="h-4 w-4 mr-1" /> Interests
+                        <User className="h-4 w-4 mr-1" /> Pendidikan
                       </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {matchInfo.interests.map((interest, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="text-xs">
-                            {interest}
-                          </Badge>
-                        ))}
-                      </div>
+                      <p className="text-sm">{matchInfo.matchedUser.fakultas}</p>
+                      <p className="text-xs text-muted-foreground">{matchInfo.matchedUser.prodi}</p>
                     </div>
 
+                    {matchInfo.matchedUser.bio && (
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground mb-2 flex items-center">
+                          <User className="h-4 w-4 mr-1" /> Bio
+                        </h3>
+                        <p className="text-sm">{matchInfo.matchedUser.bio}</p>
+                      </div>
+                    )}
+
                     <div className="w-full space-y-2 mt-4">
-                      <Link href={`/profile/${matchInfo.id}`}>
+                      <Link href={`/profile/${matchInfo.matchedUser.id}`}>
                         <Button variant="outline" className="w-full">
                           <User className="h-4 w-4 mr-2" /> View Profile
                         </Button>
@@ -328,7 +414,8 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
                       <Button
                         variant="outline"
                         className="w-full text-rose-500 hover:text-rose-600 hover:bg-rose-50"
-                        onClick={handleReport}>
+                        onClick={handleReport}
+                      >
                         <Info className="h-4 w-4 mr-2" /> Report
                       </Button>
                     </div>
@@ -347,103 +434,111 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
                     </Button>
                   </Link>
 
-                  <Link
-                    href={`/profile/${matchInfo.id}`}
-                    className="flex items-center">
+                  <Link href={`/profile/${matchInfo.matchedUser.id}`} className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
                       <AvatarImage
-                        src={matchInfo.image.src || '/placeholder.svg'}
-                        alt={matchInfo.name}
+                        src={matchInfo.matchedUser.profilePicture || "/placeholder.svg"}
+                        alt={matchInfo.matchedUser.fullname}
                       />
-                      <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
+                      <AvatarFallback>{matchInfo.matchedUser.fullname[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h2 className="font-medium">{matchInfo.name}</h2>
-                      <p className="text-xs text-muted-foreground">
-                        {matchInfo.online ? 'Online' : 'Offline'}
+                      <h2 className="font-medium">{matchInfo.matchedUser.fullname}</h2>
+                      <p className="text-xs text-muted-foreground flex items-center">
+                        <span className="h-2 w-2 rounded-full mr-1 bg-gray-300"></span>
+                        Offline
                       </p>
                     </div>
                   </Link>
                 </div>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="icon" variant="ghost" className="h-8 w-8">
-                      <MoreHorizontal className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <Link href={`/profile/${matchInfo.id}`}>
-                      <DropdownMenuItem>
-                        <User className="h-4 w-4 mr-2" /> View Profile
+                <div className="flex items-center gap-2">
+                  <div
+                    className={cn(
+                      "text-xs px-2 py-1 rounded-full",
+                      isConnected ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700",
+                    )}
+                  >
+                    {isConnected ? "Connected" : "Disconnected"}
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="icon" variant="ghost" className="h-8 w-8">
+                        <MoreHorizontal className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <Link href={`/profile/${matchInfo.matchedUser.id}`}>
+                        <DropdownMenuItem>
+                          <User className="h-4 w-4 mr-2" /> View Profile
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem onClick={handleReport}>
+                        <Info className="h-4 w-4 mr-2" /> Report
                       </DropdownMenuItem>
-                    </Link>
-                    <DropdownMenuItem onClick={handleReport}>
-                      <Info className="h-4 w-4 mr-2" /> Report
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto mb-4 space-y-4 pr-4">
                 <div className="p-4 rounded-lg bg-white shadow-sm mb-4 text-center border border-pink-100">
                   <p className="text-sm text-muted-foreground">
-                    Anda dan {matchInfo.name} telah match {matchInfo.matchDate}
+                    Anda dan {matchInfo.matchedUser.fullname} telah match {formatMatchDate(matchInfo.createdAt)}
                   </p>
-                  <p className="text-sm font-medium mt-1">
-                    Mulai percakapan yang menarik!
-                  </p>
+                  <p className="text-sm font-medium mt-1">Mulai percakapan yang menarik!</p>
                 </div>
+
+                {messages.length === 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">Belum ada pesan. Mulai percakapan!</p>
+                  </div>
+                )}
 
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={cn(
-                      'flex group',
-                      message.sender === 'user'
-                        ? 'justify-end'
-                        : 'justify-start'
-                    )}>
-                    {message.sender === 'match' && (
+                    className={cn("flex group", message.sender === "user" ? "justify-end" : "justify-start")}
+                  >
+                    {message.sender === "match" && (
                       <Avatar className="h-8 w-8 mr-2 self-end">
                         <AvatarImage
-                          src={matchInfo.image.src || '/placeholder.svg'}
-                          alt={matchInfo.name}
+                          src={matchInfo.matchedUser.profilePicture || "/placeholder.svg"}
+                          alt={matchInfo.matchedUser.fullname}
                         />
-                        <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
+                        <AvatarFallback>{matchInfo.matchedUser.fullname[0]}</AvatarFallback>
                       </Avatar>
                     )}
                     <div className="relative">
                       <div
                         className={cn(
-                          'max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl',
-                          message.sender === 'user'
-                            ? 'bg-pink-500 text-white rounded-br-none'
-                            : 'bg-muted text-foreground rounded-bl-none'
-                        )}>
+                          "max-w-xs md:max-w-md lg:max-w-lg px-4 py-2 rounded-2xl",
+                          message.sender === "user"
+                            ? "bg-pink-500 text-white rounded-br-none"
+                            : "bg-muted text-foreground rounded-bl-none",
+                        )}
+                      >
                         <p>{message.text}</p>
                       </div>
                       <div className="flex mt-1 text-xs text-muted-foreground items-center">
                         <span>{message.timestamp}</span>
-                        {message.sender === 'user' && message.seen && (
-                          <span className="ml-2">Seen</span>
-                        )}
+                        {message.sender === "user" && message.seen && <span className="ml-2">Seen</span>}
 
                         {/* Like button for messages */}
-                        {message.sender === 'match' && (
+                        {message.sender === "match" && (
                           <button
                             className={cn(
-                              'ml-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity',
-                              message.liked && 'opacity-100'
+                              "ml-2 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity",
+                              message.liked && "opacity-100",
                             )}
-                            onClick={() => handleLikeMessage(message.id)}>
+                            onClick={() => handleLikeMessage(message.id)}
+                          >
                             <Heart
                               className={cn(
-                                'h-3.5 w-3.5',
-                                message.liked
-                                  ? 'fill-pink-500 text-pink-500'
-                                  : 'text-muted-foreground'
+                                "h-3.5 w-3.5",
+                                message.liked ? "fill-pink-500 text-pink-500" : "text-muted-foreground",
                               )}
                             />
                           </button>
@@ -458,20 +553,22 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
                   <div className="flex justify-start">
                     <Avatar className="h-8 w-8 mr-2 self-end">
                       <AvatarImage
-                        src={matchInfo.image.src || '/placeholder.svg'}
-                        alt={matchInfo.name}
+                        src={matchInfo.matchedUser.profilePicture || "/placeholder.svg"}
+                        alt={matchInfo.matchedUser.fullname}
                       />
-                      <AvatarFallback>{matchInfo.name[0]}</AvatarFallback>
+                      <AvatarFallback>{matchInfo.matchedUser.fullname[0]}</AvatarFallback>
                     </Avatar>
                     <div className="bg-muted px-4 py-3 rounded-2xl rounded-bl-none">
                       <div className="flex space-x-1">
                         <div className="h-2 w-2 rounded-full bg-gray-400 animate-bounce"></div>
                         <div
                           className="h-2 w-2 rounded-full bg-gray-400 animate-bounce"
-                          style={{ animationDelay: '0.2s' }}></div>
+                          style={{ animationDelay: "0.2s" }}
+                        ></div>
                         <div
                           className="h-2 w-2 rounded-full bg-gray-400 animate-bounce"
-                          style={{ animationDelay: '0.4s' }}></div>
+                          style={{ animationDelay: "0.4s" }}
+                        ></div>
                       </div>
                     </div>
                   </div>
@@ -483,16 +580,10 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
               {/* Message input */}
               <div className="border-t pt-4">
                 <div className="flex items-end gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-10 w-10 shrink-0">
+                  <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0">
                     <Paperclip className="h-5 w-5" />
                   </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-10 w-10 shrink-0">
+                  <Button size="icon" variant="ghost" className="h-10 w-10 shrink-0">
                     <ImageIcon className="h-5 w-5" />
                   </Button>
                   <div className="relative flex-1">
@@ -501,21 +592,19 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
                       onChange={(e) => setNewMessage(e.target.value)}
                       className="pr-10 py-6 rounded-full"
                       placeholder="Ketik pesan..."
-                      onKeyPress={(e) =>
-                        e.key === 'Enter' && handleSendMessage()
-                      }
+                      onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
+                      disabled={!isConnected}
                     />
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
+                    <Button size="icon" variant="ghost" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8">
                       <Smile className="h-5 w-5" />
                     </Button>
                   </div>
                   <Button
                     onClick={handleSendMessage}
                     size="icon"
-                    className="h-10 w-10 rounded-full shrink-0 bg-pink-500 hover:bg-pink-600">
+                    className="h-10 w-10 rounded-full shrink-0 bg-pink-500 hover:bg-pink-600"
+                    disabled={!isConnected || !newMessage.trim()}
+                  >
                     <Send className="h-5 w-5" />
                   </Button>
                 </div>
@@ -525,5 +614,5 @@ export default function ChatPageComponent({ params }: { params: { id: string } }
         </div>
       </div>
     </div>
-  );
+  )
 }

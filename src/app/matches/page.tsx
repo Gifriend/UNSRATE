@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,8 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, MessageCircle, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Header from "@/components/Header"
-import { api } from "@/app/services/api"
-import { Match, MatchListResponse } from "@/app/types/match"
+import type { Match } from "@/app/types/match"
+import { matchApi } from "@/app/services/api"
 
 export default function MatchesPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -23,42 +23,42 @@ export default function MatchesPage() {
     totalMatches: 0,
   })
 
-  // Fungsi untuk mengambil data matches
-  const fetchMatches = async () => {
+  const fetchMatches = useCallback(async () => {
     try {
       setLoading(true)
-      const response = await api.get<MatchListResponse>("matches", {
-        params: {
-          page: pagination.page,
-          limit: pagination.limit,
-          sortBy: "recent"
-        }
+      const response = await matchApi.getMatches({
+        page: pagination.page,
+        limit: pagination.limit,
+        sortBy: "recent",
       })
-      
+
       setMatches(response.data.matches)
-      setPagination({
-        ...pagination,
+      setPagination((prev) => ({
+        ...prev,
         totalPages: response.data.pagination.totalPages,
         totalMatches: response.data.pagination.totalMatches,
-      })
+      }))
     } catch (error) {
       console.error("Failed to fetch matches:", error)
     } finally {
       setLoading(false)
     }
-  }
+  }, [pagination.page, pagination.limit])
 
   useEffect(() => {
     fetchMatches()
-  }, [pagination.page])
+  }, [fetchMatches])
 
   const formatTimestamp = (isoString: string) => {
     const date = new Date(isoString)
     const now = new Date()
     const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5
-    
+
     if (diffInHours < 24) {
-      return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+      return date.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
     } else if (diffInHours < 48) {
       return "Kemarin"
     } else {
@@ -67,20 +67,20 @@ export default function MatchesPage() {
   }
 
   const filteredMatches = matches.filter(
-    match =>
+    (match) =>
       match.matchedUser.fullname.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (match.lastMessage?.content.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+      (match.lastMessage?.content.toLowerCase().includes(searchQuery.toLowerCase()) ?? false),
   )
 
   const handleMatchClick = (match: Match) => {
     setSelectedMatch(match)
   }
 
-  // Fungsi untuk menghapus match
+  // Function to unmatch
   const handleUnmatch = async (matchId: string) => {
     try {
-      await api.delete(`matches/${matchId}`)
-      setMatches(prev => prev.filter(match => match.id !== matchId))
+      await matchApi.deleteMatch(matchId)
+      setMatches((prev) => prev.filter((match) => match.id !== matchId))
       setSelectedMatch(null)
     } catch (error) {
       console.error("Failed to unmatch:", error)
@@ -93,7 +93,7 @@ export default function MatchesPage() {
 
       <div className="container mx-auto px-4 py-6 md:px-0">
         <div className="md:grid md:grid-cols-12 md:gap-6">
-          {/* Panel kiri - Daftar match */}
+          {/* Left panel - Match list */}
           <div className="md:col-span-4 lg:col-span-3">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-2xl font-bold">Messages</h1>
@@ -116,20 +116,13 @@ export default function MatchesPage() {
             ) : filteredMatches.length > 0 ? (
               <div className="space-y-1">
                 {filteredMatches.map((match) => (
-                  <div 
-                    key={match.id} 
-                    onClick={() => handleMatchClick(match)}
-                    className="cursor-pointer"
-                  >
+                  <div key={match.id} onClick={() => handleMatchClick(match)} className="cursor-pointer">
                     <Link href={`/chat/${match.id}`} className="block md:hidden">
-                      <MatchItem 
-                        match={match} 
-                        formatTimestamp={formatTimestamp}
-                      />
+                      <MatchItem match={match} formatTimestamp={formatTimestamp} />
                     </Link>
                     <div className="hidden md:block">
-                      <MatchItem 
-                        match={match} 
+                      <MatchItem
+                        match={match}
                         isSelected={selectedMatch?.id === match.id}
                         formatTimestamp={formatTimestamp}
                       />
@@ -148,35 +141,35 @@ export default function MatchesPage() {
               <Button
                 variant="outline"
                 disabled={pagination.page === 0}
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page - 1 }))}
               >
                 Previous
               </Button>
-              <span>Page {pagination.page + 1} of {pagination.totalPages}</span>
+              <span>
+                Page {pagination.page + 1} of {pagination.totalPages}
+              </span>
               <Button
                 variant="outline"
                 disabled={pagination.page >= pagination.totalPages - 1}
-                onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                onClick={() => setPagination((prev) => ({ ...prev, page: prev.page + 1 }))}
               >
                 Next
               </Button>
             </div>
           </div>
 
-          {/* Panel kanan - Preview chat */}
+          {/* Right panel - Chat preview */}
           <div className="hidden md:block md:col-span-8 lg:col-span-9">
             {selectedMatch ? (
               <div className="border rounded-lg h-[calc(100vh-12rem)] flex flex-col">
                 <div className="border-b p-4 flex items-center justify-between">
                   <div className="flex items-center">
                     <Avatar className="h-10 w-10 mr-3">
-                      <AvatarImage 
-                        src={selectedMatch.matchedUser.profilePicture} 
-                        alt={selectedMatch.matchedUser.fullname} 
+                      <AvatarImage
+                        src={selectedMatch.matchedUser.profilePicture || "/placeholder.svg"}
+                        alt={selectedMatch.matchedUser.fullname}
                       />
-                      <AvatarFallback>
-                        {selectedMatch.matchedUser.fullname[0]}
-                      </AvatarFallback>
+                      <AvatarFallback>{selectedMatch.matchedUser.fullname[0]}</AvatarFallback>
                     </Avatar>
                     <div>
                       <h2 className="font-medium">{selectedMatch.matchedUser.fullname}</h2>
@@ -193,11 +186,7 @@ export default function MatchesPage() {
                         <span>View Profile</span>
                       </Button>
                     </Link>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => handleUnmatch(selectedMatch.id)}
-                    >
+                    <Button variant="destructive" size="sm" onClick={() => handleUnmatch(selectedMatch.id)}>
                       Unmatch
                     </Button>
                   </div>
@@ -236,15 +225,15 @@ export default function MatchesPage() {
   )
 }
 
-// Komponen MatchItem yang diperbarui
-function MatchItem({ 
-  match, 
+// Updated MatchItem component
+function MatchItem({
+  match,
   isSelected = false,
-  formatTimestamp
-}: { 
-  match: Match;
-  isSelected?: boolean;
-  formatTimestamp: (isoString: string) => string;
+  formatTimestamp,
+}: {
+  match: Match
+  isSelected?: boolean
+  formatTimestamp: (isoString: string) => string
 }) {
   return (
     <div
@@ -255,29 +244,28 @@ function MatchItem({
     >
       <div className="relative mr-4">
         <Avatar className="h-12 w-12 border">
-          <AvatarImage 
-            src={match.matchedUser.profilePicture} 
-            alt={match.matchedUser.fullname} 
-          />
-          <AvatarFallback>{match.matchedUser.fullname[0]}</AvatarFallback>
+          <AvatarImage src={match.matchedUser.profilePicture || "/placeholder.svg"} alt={match.matchedUser.fullname} />
+          <AvatarFallback>{match?.matchedUser?.fullname?.[0] || "U"}</AvatarFallback>
         </Avatar>
-        {/* Status online - perlu diimplementasi terpisah */}
+        {/* Online status - needs separate implementation */}
         {/* <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-background"></span> */}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-baseline">
-          <h3 className="font-medium truncate">{match.matchedUser.fullname}</h3>
-          <span className={cn("text-xs", match.unreadCount > 0 ? "text-pink-500 font-medium" : "text-muted-foreground")}>
-            {match.lastMessage 
-              ? formatTimestamp(match.lastMessage.createdAt) 
-              : formatTimestamp(match.createdAt)}
+          <h3 className="font-medium truncate">{match?.matchedUser?.fullname || "Unknown"}</h3>
+          <span
+            className={cn("text-xs", match.unreadCount > 0 ? "text-pink-500 font-medium" : "text-muted-foreground")}
+          >
+            {match.lastMessage ? formatTimestamp(match.lastMessage.createdAt) : formatTimestamp(match.createdAt)}
           </span>
         </div>
-        <p className={cn(
-          "text-sm truncate", 
-          match.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground"
-        )}>
+        <p
+          className={cn(
+            "text-sm truncate",
+            match.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground",
+          )}
+        >
           {match.lastMessage?.content || "Mulai percakapan"}
         </p>
       </div>

@@ -1,32 +1,36 @@
-import { useState, useCallback } from "react";
-import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { PhotoUploadModal } from "@/components/photo-upload-modal";
-import { Camera, Check, Plus, X } from "lucide-react";
-import { useToast } from "@/components/ui/toast-context";
-import { api } from "@/app/services/api";
-import { cn } from "@/lib/utils";
-import { UserProfile } from "@/app/types/userProfileTypes";
+import { useState, useCallback } from 'react';
+import Image from 'next/image';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { PhotoUploadModal } from '@/components/photo-upload-modal';
+import { Camera, Check, Plus, X } from 'lucide-react';
+import { useToast } from '@/components/ui/toast-context';
+import { api } from '@/app/services/api';
+import { cn } from '@/lib/utils';
+import { UserProfile } from '@/app/types/userProfileTypes';
+import { AxiosError } from 'axios';
 
 interface PhotosSectionProps {
   profile: UserProfile;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
-export default function PhotosSection({ profile, setProfile }: PhotosSectionProps) {
+export default function PhotosSection({
+  profile,
+  setProfile,
+}: PhotosSectionProps) {
   const [activePhotoIndex, setActivePhotoIndex] = useState<number | null>(null);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const { toast } = useToast();
 
   const refetchProfile = useCallback(async () => {
     try {
-      const profileResponse = await api.get("users/profile");
+      const profileResponse = await api.get('users/profile');
       if (profileResponse.data.statusCode === 200) {
         setProfile(profileResponse.data.data);
       }
     } catch (error) {
-      console.error("Error refetching profile:", error);
+      console.error('Error refetching profile:', error);
     }
   }, [setProfile]);
 
@@ -34,38 +38,44 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
     async (file: File) => {
       try {
         // Validate file
-        if (!file.type.startsWith("image/")) {
-          throw new Error("Only image files are allowed");
+        if (!file.type.startsWith('image/')) {
+          throw new Error('Only image files are allowed');
         }
         if (file.size > 5 * 1024 * 1024) {
-          throw new Error("File size exceeds 5MB limit");
+          throw new Error('File size exceeds 5MB limit');
         }
 
         const formData = new FormData();
-        formData.append("files", file); // Match backend expectation
+        formData.append('files', file); // Match backend expectation
 
-        await api.patch("users/photos", formData, {
+        await api.patch('users/photos', formData, {
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'multipart/form-data',
           },
         });
 
         await refetchProfile();
 
         toast({
-          title: "Success",
-          description: "Photo uploaded successfully",
+          title: 'Success',
+          description: 'Photo uploaded successfully',
         });
       } catch (error) {
-        console.error("Error uploading photo:", error);
+        console.error('Error uploading photo:', error);
+        let errorMessage = 'Unknown error';
+
+        if (error instanceof AxiosError) {
+          errorMessage =
+            (error.response?.data as { message?: string })?.message ??
+            error.message;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+
         toast({
-          title: "Error",
-          description: `Failed to upload photo: ${
-            typeof error === "object" && error !== null && "response" in error && (error as any).response?.data?.message
-              ? (error as any).response.data.message
-              : (error instanceof Error ? error.message : "Unknown error")
-          }`,
-          variant: "destructive",
+          title: 'Error',
+          description: `Failed to upload photo: ${errorMessage}`,
+          variant: 'destructive',
         });
       }
     },
@@ -75,7 +85,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
   const handleDeletePhoto = useCallback(
     async (photoUrl: string) => {
       try {
-        await api.delete("users/photos", {
+        await api.delete('users/photos', {
           data: { photoUrl }, // Send photoUrl in body
         });
 
@@ -85,15 +95,15 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
         setShowPhotoOptions(false);
 
         toast({
-          title: "Success",
-          description: "Photo deleted successfully",
+          title: 'Success',
+          description: 'Photo deleted successfully',
         });
       } catch (error) {
-        console.error("Error deleting photo:", error);
+        console.error('Error deleting photo:', error);
         toast({
-          title: "Error",
-          description: "Failed to delete photo",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to delete photo',
+          variant: 'destructive',
         });
       }
     },
@@ -103,7 +113,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
   const handleSetProfilePhoto = useCallback(
     async (photoUrl: string | null) => {
       try {
-        await api.patch("users/photos", {
+        await api.patch('users/photos', {
           profilePicture: photoUrl || null, // Send null instead of ""
         });
 
@@ -113,15 +123,15 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
         setShowPhotoOptions(false);
 
         toast({
-          title: "Success",
-          description: "Profile picture updated successfully",
+          title: 'Success',
+          description: 'Profile picture updated successfully',
         });
       } catch (error) {
-        console.error("Error setting profile photo:", error);
+        console.error('Error setting profile photo:', error);
         toast({
-          title: "Error",
-          description: "Failed to set profile photo",
-          variant: "destructive",
+          title: 'Error',
+          description: 'Failed to set profile photo',
+          variant: 'destructive',
         });
       }
     },
@@ -139,8 +149,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2 hover:cursor-pointer"
-              >
+                className="gap-2 hover:cursor-pointer">
                 <Camera className="h-4 w-4" /> Add Photo
               </Button>
             }
@@ -155,8 +164,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
               onClick={() => {
                 setActivePhotoIndex(-1);
                 setShowPhotoOptions(true);
-              }}
-            >
+              }}>
               <Image
                 src={profile.profilePicture}
                 alt="Profile Picture"
@@ -167,8 +175,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="h-8 w-8 text-white"
-                >
+                  className="h-8 w-8 text-white">
                   <Camera className="h-4 w-4" />
                 </Button>
               </div>
@@ -180,19 +187,19 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
 
           {profile.Photos &&
             profile.Photos.filter(
-              (photo) => photo && typeof photo === "string" && photo.trim() !== ""
+              (photo) =>
+                photo && typeof photo === 'string' && photo.trim() !== ''
             ).map((photo, index) => (
               <div
                 key={photo} // Use photo URL as key
                 className={cn(
-                  "aspect-square bg-muted rounded-md relative overflow-hidden group",
-                  activePhotoIndex === index && "ring-2 ring-pink-500"
+                  'aspect-square bg-muted rounded-md relative overflow-hidden group',
+                  activePhotoIndex === index && 'ring-2 ring-pink-500'
                 )}
                 onClick={() => {
                   setActivePhotoIndex(index);
                   setShowPhotoOptions(true);
-                }}
-              >
+                }}>
                 <Image
                   src={photo} // Use photo directly
                   alt={`Photo ${index + 1}`}
@@ -203,8 +210,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
                   <Button
                     size="icon"
                     variant="ghost"
-                    className="h-8 w-8 text-white"
-                  >
+                    className="h-8 w-8 text-white">
                     <Camera className="h-4 w-4" />
                   </Button>
                 </div>
@@ -225,12 +231,10 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
         {showPhotoOptions && activePhotoIndex !== null && (
           <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-            onClick={() => setShowPhotoOptions(false)}
-          >
+            onClick={() => setShowPhotoOptions(false)}>
             <div
               className="bg-background rounded-lg p-4 max-w-sm w-full mx-4"
-              onClick={(e) => e.stopPropagation()}
-            >
+              onClick={(e) => e.stopPropagation()}>
               <h3 className="font-medium text-lg mb-4">Photo Options</h3>
 
               <div className="space-y-2">
@@ -240,8 +244,7 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
                     className="w-full justify-start"
                     onClick={() =>
                       handleSetProfilePhoto(profile.Photos[activePhotoIndex])
-                    }
-                  >
+                    }>
                     <Check className="h-4 w-4 mr-2" /> Set as profile photo
                   </Button>
                 )}
@@ -252,20 +255,23 @@ export default function PhotosSection({ profile, setProfile }: PhotosSectionProp
                   onClick={() => {
                     if (activePhotoIndex >= 0) {
                       handleDeletePhoto(profile.Photos[activePhotoIndex]); // Send URL
-                    } else if (activePhotoIndex === -1 && profile.profilePicture) {
+                    } else if (
+                      activePhotoIndex === -1 &&
+                      profile.profilePicture
+                    ) {
                       handleSetProfilePhoto(null); // Remove profile picture
                     }
-                  }}
-                >
+                  }}>
                   <X className="h-4 w-4 mr-2" />
-                  {activePhotoIndex === -1 ? "Remove profile photo" : "Delete photo"}
+                  {activePhotoIndex === -1
+                    ? 'Remove profile photo'
+                    : 'Delete photo'}
                 </Button>
 
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={() => setShowPhotoOptions(false)}
-                >
+                  onClick={() => setShowPhotoOptions(false)}>
                   Cancel
                 </Button>
               </div>

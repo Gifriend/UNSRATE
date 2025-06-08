@@ -31,3 +31,16 @@ export const api = axios.create({
   }
   return null;
 };
+
+
+// Chat API endpoints
+export const chatApi = {
+  getMessages: (matchId: string) => api.get(`chat/match/${matchId}/messages`),
+}
+
+// Match API endpoints
+export const matchApi = {
+  getMatches: (params: any) => api.get("matches", { params }),
+  getMatchById: (matchId: string) => api.get(`matches/${matchId}`),
+  deleteMatch: (matchId: string) => api.delete(`matches/${matchId}`),
+}
