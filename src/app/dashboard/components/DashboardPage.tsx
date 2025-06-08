@@ -9,6 +9,7 @@ import { User, Stats, PageInfo } from '@/app/types/adminTypes';
 import { DashboardHeader } from './DashboardHeader';
 import { StatCards } from './StatCards';
 import { DashboardTabs } from './DashboardTabs';
+import DashboardSkeleton from './DashboardSekeleton';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -85,12 +86,9 @@ export default function Dashboard() {
     setPageInfo((prev) => ({ ...prev, currentPage: newPage }));
   };
 
+  
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
-      </div>
-    );
+    return <DashboardSkeleton />; 
   }
 
   return (
