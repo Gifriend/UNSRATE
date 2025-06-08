@@ -43,9 +43,6 @@ export default function Header() {
           >
             <MessageCircle className="h-5 w-5" />
             <span>Messages</span>
-            <span className="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-[10px] text-white">
-              3
-            </span>
           </Link>
 
           <DropdownMenu>

@@ -12,7 +12,7 @@ export interface UserProfile {
   gender: string 
   alamat: string 
   verified: boolean
-  interests: string[]
+  interests:{ id: string; name: string }[];
   profileCompletion: number
   missingFields: string[]
 }
