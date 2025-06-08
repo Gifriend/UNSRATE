@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Calendar, Heart, ImageIcon, Info, MoreHorizontal, Paperclip, Send, Smile, User } from "lucide-react"
+import { ArrowLeft, Calendar, Heart, Info, MoreHorizontal, Send, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Header from "@/components/Header"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -60,7 +60,7 @@ export default function ChatPageComponent({
   const [matchInfo, setMatchInfo] = useState<Match | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState<string>("")
-  const [isTyping, setIsTyping] = useState<boolean>(false)
+  const [isTyping] = useState<boolean>(false)
   const [isConnected, setIsConnected] = useState(false)
   const [userId, setUserId] = useState<string>("")
   const [loading, setLoading] = useState(true)
@@ -142,7 +142,7 @@ export default function ChatPageComponent({
         console.log("Message history response:", response)
 
         if (Array.isArray(response.data)) {
-          const fetchedMessages = response.data.map((msg: any) => {
+          const fetchedMessages = response.data.map((msg) => {
             return {
               id: msg.id,
               sender: msg.senderId === userId ? "user" : ("match" as "user" | "match"),
@@ -178,6 +178,7 @@ export default function ChatPageComponent({
       try {
         await initializeWebSocket()
       } catch (error) {
+        console.log(error);
         retryCount++
         if (retryCount < maxRetries) {
           console.log(`Retrying connection... (${retryCount}/${maxRetries})`)
@@ -197,7 +198,7 @@ export default function ChatPageComponent({
       wsService.disconnect()
       setIsConnected(false)
     }
-  }, [id, userId])
+  }, [id, userId,])
 
   const initializeWebSocket = async () => {
     try {
@@ -211,7 +212,7 @@ export default function ChatPageComponent({
         wsService.joinRoom(id)
       }, 1000)
 
-      wsService.onMessage((messageData: any) => {
+      wsService.onMessage((messageData) => {
         console.log("Raw message received:", messageData)
         console.log("Message data keys:", Object.keys(messageData))
         console.log("Message content:", messageData.content || messageData.message || messageData.text)
@@ -257,7 +258,7 @@ export default function ChatPageComponent({
         setIsConnected(false)
       })
 
-      wsService.onMessageSent((data: any) => {
+      wsService.onMessageSent((data) => {
         console.log("Message sent acknowledgment:", data)
       })
     } catch (error) {

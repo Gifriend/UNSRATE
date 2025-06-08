@@ -7,7 +7,7 @@ import { Edit, Save, X } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { api } from "@/app/services/api"
 import { UserProfile } from "@/app/types/userProfileTypes"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Select} from "@/components/ui/select"
 
 interface AboutSectionProps {
   profile: UserProfile
