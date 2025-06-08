@@ -19,33 +19,23 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
   const { toast } = useToast()
 
   const handlePhotoUpload = async (file: File) => {
-    if (!file) {
-    toast({
-      title: "No file selected",
-      description: "Please choose a photo to upload.",
-      variant: "destructive",
-    });
-    return;
-  }
     setIsUploadingPhoto(true)
     try {
       const formData = new FormData()
-      formData.append('file', file)
+      formData.append('files', file)
 
-      // Upload photo to your API endpoint
-      const response = await api.patch('users/photo', formData, {
+      // Upload photo using the correct endpoint
+      const response = await api.post('users/profile-picture', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       })
 
       if (response.data.statusCode === 200) {
-        // Update profile with new photo URL
-        if (setProfile) {
-          setProfile(prev => prev ? {
-            ...prev,
-            profilePicture: response.data.data.profilePicture
-          } : null)
+        // Refetch full profile data after successful upload
+        const profileResponse = await api.get('users/profile')
+        if (profileResponse.data.statusCode === 200 && setProfile) {
+          setProfile(profileResponse.data.data)
         }
 
         toast({

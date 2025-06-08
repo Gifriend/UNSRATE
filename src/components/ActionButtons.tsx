@@ -7,9 +7,10 @@ interface ActionButtonsProps {
   onDislike: () => void
   onLike: () => void
   onSuperLike?: () => void
+  disabled?: boolean
 }
 
-export default function ActionButtons({ onDislike, onLike, onSuperLike }: ActionButtonsProps) {
+export default function ActionButtons({ onDislike, onLike, onSuperLike,  }: ActionButtonsProps) {
   return (
     <div className="flex justify-center items-center gap-4 mt-6">
       <Button

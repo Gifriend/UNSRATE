@@ -1,4 +1,3 @@
-// components/DashboardTabs.tsx
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { UserTable } from "./UserTable";
@@ -18,7 +17,6 @@ interface DashboardTabsProps {
 }
 
 export const DashboardTabs = ({
-  users,
   pageInfo,
   onPageChange,
   onVerify,

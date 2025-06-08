@@ -75,7 +75,7 @@ export default function RegisterForm({
       const response = await api.post('auth/register', registerData);
 
       if (response.status === 200 || response.status === 201) {
-        const tokenData = response.data.token;
+        const tokenData = response.data.data.token;
 
         if (tokenData?.access_token && tokenData?.refresh_token) {
           document.cookie = `access_token=${tokenData.access_token}; path=/;`;
@@ -84,7 +84,7 @@ export default function RegisterForm({
           // window.location.href = '/swipe';
           onRegisterSuccess();
         } else {
-          setError('Registrasi berhasil tetapi token tidak tersedia.');
+          setError('Registrasi berhasil, Silahkan Login');
         }
       }
     } catch (error) {

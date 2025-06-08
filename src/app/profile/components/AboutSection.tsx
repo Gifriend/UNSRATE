@@ -7,6 +7,7 @@ import { Edit, Save, X } from "lucide-react"
 import { useToast } from "@/components/ui/toast-context"
 import { api } from "@/app/services/api"
 import { UserProfile } from "@/app/types/userProfileTypes"
+import { Select} from "@/components/ui/select"
 
 interface AboutSectionProps {
   profile: UserProfile
@@ -88,28 +89,54 @@ export default function AboutSection({ profile, setProfile }: AboutSectionProps)
   }
 
   const renderField = (field: EditableStringField, label: string) => {
-    if (editingField === field) {
-      return (
-        <div className="flex gap-2">
+  const isEditing = editingField === field
+
+  if (isEditing) {
+    return (
+      <div className="flex gap-2 items-center relative z-50">
+          {field === 'gender' ? (
+            <div className="w-[180px]">
+              <Select
+                value={editedValue}
+                onValueChange={(value) => {
+                  setEditedValue(value);
+                  handleSaveField(); 
+                }}>
+                <div className="absolute z-[100] mt-1 w-[180px] bg-white border rounded-md">
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setEditedValue('MALE')}>
+                    Male
+                  </div>
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => setEditedValue('FEMALE')}>
+                    Female
+                  </div>
+                </div>
+              </Select>
+            </div>
+          ) : (
           <Input
             value={editedValue}
             onChange={(e) => setEditedValue(e.target.value)}
           />
-          <Button size="sm" onClick={handleSaveField}>Save</Button>
-          <Button size="sm" variant="ghost" onClick={handleCancelField}>Cancel</Button>
-        </div>
-      )
-    } else {
-      return (
-        <div className="text-sm font-medium flex items-center gap-2">
-          {profile[field] || "Not specified"}
-          <Button variant="ghost" size="sm" onClick={() => startEditing(field)}>
-            <Edit className="h-4 w-4" />
-          </Button>
-        </div>
-      )
-    }
+        )}
+        <Button size="sm" onClick={handleSaveField}>Save</Button>
+        <Button size="sm" variant="ghost" onClick={handleCancelField}>Cancel</Button>
+      </div>
+    )
+  } else {
+    return (
+      <div className="text-sm font-medium flex items-center gap-2">
+        {profile[field] || "Not specified"}
+        <Button variant="ghost" size="sm" onClick={() => startEditing(field)}>
+          <Edit className="h-4 w-4" />
+        </Button>
+      </div>
+    )
   }
+}
 
   return (
     <div className="space-y-4">

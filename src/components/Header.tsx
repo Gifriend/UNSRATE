@@ -58,7 +58,7 @@ export default function Header() {
                   )}
                 >
                   <Avatar className="h-6 w-6 border border-muted">
-                    <AvatarImage src="/placeholder.svg?height=32&width=32" alt="Profile" />
+                    <AvatarImage src="/" alt="Profile" />
                     <AvatarFallback>U</AvatarFallback>
                   </Avatar>
                   <span>Profile</span>
