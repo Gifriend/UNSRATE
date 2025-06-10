@@ -45,19 +45,19 @@ export default function Dashboard() {
     fetchData();
   }, [fetchData]);
 
-  const handleVerify = async (id: string) => {
+  const handleVerify = async (userId: string) => {
     try {
-      await api.patch(`admin/users/${id}/verify`);
+      await api.post(`admin/verify`,  {userId});
       fetchData();
     } catch (error) {
       console.error('Failed to verify user:', error);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (userId: string) => {
     if (confirm('Apakah Anda yakin ingin menghapus mahasiswa ini?')) {
       try {
-        await api.delete(`admin/users/${id}`);
+        await api.delete(`admin/user`, { data: { userId } });
         fetchData();
       } catch (error) {
         console.error('Failed to delete user:', error);
