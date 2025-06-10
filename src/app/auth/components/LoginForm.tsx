@@ -72,7 +72,7 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
         setError('Login failed. Please check your details and try again.');
       }
       if (response.status == 401) {
-        setError('Unauthorized - Invalid credentials');
+        setError('Unauthorized - Email atau Password salah');
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
