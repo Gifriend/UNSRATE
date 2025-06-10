@@ -1,75 +1,58 @@
-import { useState, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Edit, Save, X, Plus } from "lucide-react";
-import { useToast } from "@/components/ui/toast-context";
-import { api } from "@/app/services/api";
-import { UserProfile } from "@/app/types/userProfileTypes";
+"use client"
+
+import type React from "react"
+
+import { useState, useCallback } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Edit, Save, X, Plus } from "lucide-react"
+import { useToast } from "@/components/ui/toast-context"
+import { api } from "@/app/services/api"
+import type { UserProfile } from "@/app/types/userProfileTypes"
+
+interface Interest {
+  id: string
+  name: string
+}
 
 interface InterestsSectionProps {
-  profile: UserProfile;
-  setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+  profile: UserProfile
+  setProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>
 }
 
 export default function InterestsSection({ profile, setProfile }: InterestsSectionProps) {
-  const [isEditingInterests, setIsEditingInterests] = useState(false);
-  const [newInterest, setNewInterest] = useState("");
-  const [editedInterests, setEditedInterests] = useState<{ id: string; name: string }[]>(
-    profile.interests || []
-  );
-  const { toast } = useToast();
+  const [isEditingInterests, setIsEditingInterests] = useState(false)
+  const [newInterest, setNewInterest] = useState("")
+  const [editedInterests, setEditedInterests] = useState<Interest[]>(profile.interests || [])
+  const { toast } = useToast()
 
-  // Fetch or create an interest by name
-  const getOrCreateInterest = useCallback(
-    async (name: string): Promise<{ id: string; name: string }> => {
-      try {
-        // Try to find existing interest
-        const response = await api.get(`/interests?name=${encodeURIComponent(name)}`);
-        if (response.data.data && response.data.data.length > 0) {
-          return response.data.data[0]; // Return first matching interest
-        }
-
-        // Create new interest if not found
-        const createResponse = await api.post("/interests", { name });
-        return createResponse.data.data;
-      } catch (error) {
-        console.error("Error fetching/creating interest:", error);
-        throw error;
-      }
-    },
-    []
-  );
-
-  const handleAddInterest = useCallback(async () => {
+  const handleAddInterest = useCallback(() => {
     if (newInterest.trim() && !editedInterests.some((i) => i.name.toLowerCase() === newInterest.trim().toLowerCase())) {
-      try {
-        const interest = await getOrCreateInterest(newInterest.trim());
-        setEditedInterests([...editedInterests, interest]);
-        setNewInterest("");
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to add interest",
-          variant: "destructive",
-        });
+      const newInterestObj = {
+        id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: newInterest.trim(),
       }
+
+      setEditedInterests([...editedInterests, newInterestObj])
+      setNewInterest("")
     }
-  }, [newInterest, editedInterests, getOrCreateInterest, toast]);
+  }, [newInterest, editedInterests])
 
   const handleRemoveInterest = useCallback(
     (interestId: string) => {
-      setEditedInterests(editedInterests.filter((item) => item.id !== interestId));
+      setEditedInterests(editedInterests.filter((item) => item.id !== interestId))
     },
-    [editedInterests]
-  );
+    [editedInterests],
+  )
 
+  // Save interests using the backend's profile update endpoint
   const handleSaveInterests = useCallback(async () => {
     try {
-      await api.patch("/users/profile", {
-        setInterests: editedInterests.map((i) => i.id), // Send array of interest IDs
-      });
+      await api.patch("users/profile", {
+        setInterests: editedInterests.map((i) => i.id),
+      })
 
       setProfile((profile) =>
         profile
@@ -77,29 +60,29 @@ export default function InterestsSection({ profile, setProfile }: InterestsSecti
               ...profile,
               interests: editedInterests,
             }
-          : null
-      );
+          : null,
+      )
 
-      setIsEditingInterests(false);
+      setIsEditingInterests(false)
       toast({
         title: "Success",
         description: "Interests updated successfully",
-      });
+      })
     } catch (error) {
-      console.error("Error updating interests:", error);
+      console.error("Error updating interests:", error)
       toast({
         title: "Error",
         description: "Failed to update interests",
         variant: "destructive",
-      });
+      })
     }
-  }, [editedInterests, setProfile, toast]);
+  }, [editedInterests, setProfile, toast])
 
   const handleCancelInterests = useCallback(() => {
-    setEditedInterests(profile?.interests || []);
-    setIsEditingInterests(false);
-    setNewInterest("");
-  }, [profile?.interests]);
+    setEditedInterests(profile?.interests || [])
+    setIsEditingInterests(false)
+    setNewInterest("")
+  }, [profile?.interests])
 
   return (
     <Card>
@@ -124,35 +107,44 @@ export default function InterestsSection({ profile, setProfile }: InterestsSecti
 
         {isEditingInterests ? (
           <div className="space-y-4">
-            <div className="flex flex-wrap gap-2 md:gap-3">
-              {editedInterests.length > 0 ? (
-                editedInterests.map((interest) => (
-                  <Badge key={interest.id} variant="secondary" className="px-3 py-1 md:text-sm group">
-                    {interest.name}
-                    <button
-                      className="ml-2 text-muted-foreground hover:text-foreground"
-                      onClick={() => handleRemoveInterest(interest.id)}
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </Badge>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-sm">No interests added yet.</p>
-              )}
+            {/* Selected Interests */}
+            <div>
+              <h3 className="text-sm font-medium mb-2">Selected Interests:</h3>
+              <div className="flex flex-wrap gap-2 md:gap-3 min-h-[2rem]">
+                {editedInterests.length > 0 ? (
+                  editedInterests.map((interest) => (
+                    <Badge key={interest.id} variant="secondary" className="px-3 py-1 md:text-sm group">
+                      {interest.name}
+                      <button
+                        className="ml-2 text-muted-foreground hover:text-foreground"
+                        onClick={() => handleRemoveInterest(interest.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-sm">No interests selected yet.</p>
+                )}
+              </div>
             </div>
 
-            <div className="flex gap-2">
-              <Input
-                value={newInterest}
-                onChange={(e) => setNewInterest(e.target.value)}
-                placeholder="Add new interest..."
-                className="flex-1"
-                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddInterest())}
-              />
-              <Button onClick={handleAddInterest} disabled={!newInterest.trim()}>
-                Add
-              </Button>
+            {/* Add Interest */}
+            <div>
+              <h3 className="text-sm font-medium mb-2">Add Interest:</h3>
+              <div className="flex gap-2">
+                <Input
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  placeholder="Enter interest..."
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddInterest())}
+                />
+                <Button onClick={handleAddInterest} disabled={!newInterest.trim()}>
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
@@ -180,5 +172,5 @@ export default function InterestsSection({ profile, setProfile }: InterestsSecti
         )}
       </CardContent>
     </Card>
-  );
+  )
 }
