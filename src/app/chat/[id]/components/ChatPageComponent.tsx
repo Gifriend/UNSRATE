@@ -376,10 +376,6 @@ export default function ChatPageComponent({
                   <h2 className="text-xl font-bold mb-1">
                     {matchInfo.matchedUser.fullname}, {matchInfo.matchedUser.age}
                   </h2>
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground mb-4">
-                    <span className="h-2 w-2 rounded-full bg-gray-300"></span>
-                    <span>Offline</span>
-                  </div>
 
                   <div className="w-full space-y-4 mt-4 text-left">
                     <div>
@@ -445,10 +441,7 @@ export default function ChatPageComponent({
                     </Avatar>
                     <div>
                       <h2 className="font-medium">{matchInfo.matchedUser.fullname}</h2>
-                      <p className="text-xs text-muted-foreground flex items-center">
-                        <span className="h-2 w-2 rounded-full mr-1 bg-gray-300"></span>
-                        Offline
-                      </p>
+
                     </div>
                   </Link>
                 </div>

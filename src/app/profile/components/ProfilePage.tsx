@@ -7,13 +7,13 @@ import Header from "@/components/Header"
 import ProfileHeader from "./ProfileHeader"
 import ProfileTabs from "./ProfileTabs"
 import { UserProfile } from "@/app/types/userProfileTypes"
+import ProfileSkeleton from "./ProfileSkeleton" 
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const { toast } = useToast()
 
-  // Use useCallback to memoize the fetch function and prevent re-creation
   const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true)
@@ -39,22 +39,14 @@ export default function ProfilePage() {
     } finally {
       setLoading(false)
     }
-  }, [toast]) // Only recreate if toast changes
+  }, [toast])
 
-  // Fetch profile only once on mount
   useEffect(() => {
     fetchUserProfile()
-  }, [fetchUserProfile]) // Stable dependency due to useCallback
+  }, [fetchUserProfile])
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="container mx-auto px-4 py-6 md:max-w-4xl lg:max-w-5xl flex items-center justify-center h-[80vh]">
-          <p>Loading profile...</p>
-        </div>
-      </div>
-    )
+    return <ProfileSkeleton /> // Use skeleton component
   }
 
   if (!profile) {

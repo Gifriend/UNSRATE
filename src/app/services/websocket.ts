@@ -25,7 +25,7 @@ class WebSocketService {
         return
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"
 
       // Try connecting without namespace first, then with namespace
       this.socket = io(wsUrl, {

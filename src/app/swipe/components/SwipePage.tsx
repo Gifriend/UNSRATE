@@ -1,81 +1,142 @@
-'use client';
+"use client"
 
-import { useState, useEffect, useCallback } from 'react';
-import SwipeCard from '@/components/SwipeCard';
-import ActionButtons from '@/components/ActionButtons';
-import Header from '@/components/Header';
-import { Heart } from 'lucide-react';
-import SkeletonCard from './SkeletonCard';
-import { Profile } from '@/app/types/swipe';
-import { api } from '@/app/services/api';
+import { useState, useEffect, useCallback } from "react"
+import SwipeCard from "@/components/SwipeCard"
+import ActionButtons from "@/components/ActionButtons"
+import Header from "@/components/Header"
+import { Heart } from "lucide-react"
+import SkeletonCard from "./SkeletonCard"
+import type { Profile, SwipeResponse, SwipeRequest } from "@/app/types/swipe"
+import { api } from "@/app/services/api"
 
 export default function SwipePage() {
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0)
+  const [profiles, setProfiles] = useState<Profile[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [error, setError] = useState<string | null>(null)
+  const [isFetchingMore, setIsFetchingMore] = useState<boolean>(false)
+  const [hasFetchedMore, setHasFetchedMore] = useState<boolean>(false)
 
-console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.length });
+  console.log("Rendering SwipePage", {
+    currentIndex,
+    profilesLength: profiles.length,
+    hasFetchedMore,
+    remainingProfiles: profiles.length - currentIndex,
+  })
 
-  useEffect(() => {
-    console.log('useEffect triggered for fetching profiles');
-    const fetchProfiles = async () => {
-      try {
-        setIsLoading(true);
-        const response = await api.get('discovery/feed');
-        console.log('API response:', response.data);
-        // Ensure profiles is an array to prevent issues with unexpected data
-        const newProfiles = Array.isArray(response.data.profiles) ? response.data.profiles : [];
-        setProfiles(newProfiles);
-        setCurrentIndex(0); // Reset index when new profiles are fetched
-        setError(null);
-      } catch (err) {
-        setError('Failed to load profiles. Please try again later.');
-        console.error('Fetch error:', err);
-      } finally {
-        setIsLoading(false);
+  // Initial fetch
+  const fetchInitialProfiles = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setError(null)
+
+      const response = await api.get("discovery/feed")
+      console.log("Initial API response:", response.data)
+
+      const newProfiles = Array.isArray(response.data.profiles) ? response.data.profiles : []
+      setProfiles(newProfiles)
+      setCurrentIndex(0)
+      setHasFetchedMore(false) // Reset fetch flag for new batch
+    } catch (err) {
+      setError("Failed to load profiles. Please try again later.")
+      console.error("Initial fetch error:", err)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  // Fetch more profiles
+  const fetchMoreProfiles = useCallback(async () => {
+    if (isFetchingMore || hasFetchedMore) return
+
+    try {
+      setIsFetchingMore(true)
+      console.log("Fetching more profiles...")
+
+      const response = await api.get("discovery/feed")
+      console.log("More profiles API response:", response.data)
+
+      const newProfiles = Array.isArray(response.data.profiles) ? response.data.profiles : []
+
+      if (newProfiles.length > 0) {
+        setProfiles((prev) => [...prev, ...newProfiles])
+        setHasFetchedMore(true) // Mark that we've fetched more for this batch
+        console.log("Added more profiles:", newProfiles.length)
       }
-    };
+    } catch (err) {
+      console.error("Fetch more profiles error:", err)
+    } finally {
+      setIsFetchingMore(false)
+    }
+  }, [isFetchingMore, hasFetchedMore])
 
-    fetchProfiles();
-  }, []);
+  // Initial load
+  useEffect(() => {
+    fetchInitialProfiles()
+  }, [fetchInitialProfiles])
+
+  // Check if we need to fetch more profiles when currentIndex changes
+  useEffect(() => {
+    const remainingProfiles = profiles.length - currentIndex
+
+    console.log("Checking fetch condition:", {
+      currentIndex,
+      profilesLength: profiles.length,
+      remainingProfiles,
+      hasFetchedMore,
+      isFetchingMore,
+    })
+
+    // Only fetch when we have 2 profiles left and haven't fetched more yet
+    if (remainingProfiles <= 2 && !hasFetchedMore && !isFetchingMore && profiles.length > 0) {
+      console.log("Triggering fetch more profiles")
+      fetchMoreProfiles()
+    }
+  }, [currentIndex, profiles.length, hasFetchedMore, isFetchingMore, fetchMoreProfiles])
 
   const handleSwipe = useCallback(
-    async (action: 'LIKE' | 'DISLIKE') => {
-      if (currentIndex >= profiles.length) return;
+    async (action: "LIKE" | "DISLIKE") => {
+      if (currentIndex >= profiles.length) return
 
-      const currentProfile = profiles[currentIndex];
+      const currentProfile = profiles[currentIndex]
       try {
-        await api.post('swipes', {
+        const swipeRequest: SwipeRequest = {
           swipedUserId: currentProfile.id,
           action,
-        });
+        }
 
-        console.log(`${action} on ${currentProfile.name}`);
+        const response = await api.post<SwipeResponse>("swipes", swipeRequest)
+        console.log(`${action} on ${currentProfile.fullname}:`, response.data)
 
-        setCurrentIndex((prev) => prev + 1);
+        // Check if there's a match
+        if (response.data.match) {
+          console.log("Match created!", response.data.match)
+          // Here you could show a match notification
+        }
+
+        setCurrentIndex((prev) => prev + 1)
       } catch (err) {
-        console.error(`Failed to ${action.toLowerCase()} profile:`, err);
+        console.error(`Failed to ${action.toLowerCase()} profile:`, err)
       }
     },
-    [currentIndex, profiles]
-  );
+    [currentIndex, profiles],
+  )
 
-  const handleLike = useCallback(() => handleSwipe('LIKE'), [handleSwipe]);
-  const handleDislike = useCallback(
-    () => handleSwipe('DISLIKE'),
-    [handleSwipe]
-  );
+  const handleLike = useCallback(() => handleSwipe("LIKE"), [handleSwipe])
+  const handleDislike = useCallback(() => handleSwipe("DISLIKE"), [handleSwipe])
+
+  // Reset fetch flag when we run out of profiles completely
+  useEffect(() => {
+    if (currentIndex >= profiles.length && profiles.length > 0) {
+      console.log("Reached end of profiles, resetting fetch flag")
+      setHasFetchedMore(false)
+    }
+  }, [currentIndex, profiles.length])
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <div className="hidden md:block absolute -left-16 top-32 text-pink-200 ">
-        <svg
-          width="200"
-          height="200"
-          viewBox="0 0 200 200"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="200" height="200" viewBox="0 0 200 200" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M100 0L120 60.8L184.8 60.8L132.4 98.4L152.4 159.2L100 121.6L47.6 159.2L67.6 98.4L15.2 60.8L80 60.8L100 0Z"
             fill="currentColor"
@@ -83,12 +144,7 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
         </svg>
       </div>
       <div className="hidden md:block absolute -right-16 top-1/4 text-pink-200 ">
-        <svg
-          width="240"
-          height="240"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="240" height="240" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
             fill="currentColor"
@@ -96,12 +152,7 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
         </svg>
       </div>
       <div className="hidden md:block absolute left-1/4 bottom-20 text-pink-200 ">
-        <svg
-          width="180"
-          height="180"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="180" height="180" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
             fill="currentColor"
@@ -109,24 +160,14 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
         </svg>
       </div>
       <div className="hidden md:block absolute right-1/4 bottom-40 text-pink-200 ">
-        <svg
-          width="120"
-          height="120"
-          viewBox="0 0 200 200"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="120" height="120" viewBox="0 0 200 200" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <circle cx="100" cy="100" r="100" fill="currentColor" />
         </svg>
       </div>
 
       {/* Additional decorative elements */}
       <div className="hidden md:block absolute left-1/3 top-40 text-pink-200">
-        <svg
-          width="60"
-          height="60"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
             fill="currentColor"
@@ -134,12 +175,7 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
         </svg>
       </div>
       <div className="hidden md:block absolute right-1/3 top-60 text-pink-200 ">
-        <svg
-          width="40"
-          height="40"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          xmlns="http://www.w3.org/2000/svg">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
             fill="currentColor"
@@ -153,11 +189,31 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
         {isLoading ? (
           <SkeletonCard />
         ) : error ? (
-          <div className="text-center py-10 text-red-500">{error}</div>
+          <div className="text-center py-10 text-red-500">
+            <p className="mb-4">{error}</p>
+            <button
+              onClick={fetchInitialProfiles}
+              className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600"
+            >
+              Try Again
+            </button>
+          </div>
         ) : currentIndex < profiles.length ? (
           <div className="space-y-6">
             <SwipeCard profile={profiles[currentIndex]} />
+            {isFetchingMore && (
+              <div className="absolute top-2 left-0 right-0 flex justify-center">
+                <div className="bg-pink-100 text-pink-800 text-xs px-3 py-1 rounded-full">
+                  Mencari lebih banyak profil...
+                </div>
+              </div>
+            )}
             <ActionButtons onDislike={handleDislike} onLike={handleLike} />
+
+            {/* Debug info - remove in production */}
+            {/* <div className="text-xs text-gray-500 text-center">
+              {currentIndex + 1} / {profiles.length} | Remaining: {profiles.length - currentIndex}
+            </div> */}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4 bg-background rounded-3xl shadow-lg border p-8">
@@ -166,12 +222,17 @@ console.log('Rendering SwipePage', { currentIndex, profilesLength: profiles.leng
             </div>
             <h2 className="text-2xl font-bold">Tidak ada profil lagi</h2>
             <p className="text-muted-foreground max-w-xs">
-              Kami sedang mencari lebih banyak orang yang cocok dengan Anda.
-              Coba lagi nanti ya!
+              Kami sedang mencari lebih banyak orang yang cocok dengan Anda. Coba lagi nanti ya!
             </p>
+            <button
+              onClick={fetchInitialProfiles}
+              className="px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 mt-4"
+            >
+              Cari Lagi
+            </button>
           </div>
         )}
       </main>
     </div>
-  );
+  )
 }
