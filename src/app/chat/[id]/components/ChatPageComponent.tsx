@@ -258,7 +258,7 @@ export default function ChatPageComponent({
         setIsConnected(false)
       })
 
-      wsService.onMessageSent((data) => {
+      wsService.onMessage((data) => {
         console.log("Message sent acknowledgment:", data)
       })
     } catch (error) {

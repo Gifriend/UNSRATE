@@ -15,191 +15,187 @@ const getCookieValue = (name: string): string | null => {
 class WebSocketService {
   private socket: Socket | null = null
   private token: string | null = null
+  private currentUrl = ""
 
   connect(): Promise<Socket> {
     return new Promise((resolve, reject) => {
       this.token = getCookieValue("access_token")
 
       if (!this.token) {
+        console.error("No access token found in cookies")
         reject(new Error("No access token found"))
         return
       }
 
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000"
+      console.log("Token found:", this.token.substring(0, 20) + "...")
 
-      // Try connecting without namespace first, then with namespace
-      this.socket = io(wsUrl, {
+      // Sesuai screenshot: backend di port 5000
+      const wsUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000"
+
+      // Sesuai screenshot: /chat namespace
+      this.currentUrl = `${wsUrl}chat`
+      console.log("Connecting to WebSocket URL:", this.currentUrl)
+
+      // Disconnect previous socket if exists
+      if (this.socket) {
+        this.socket.disconnect()
+        this.socket = null
+      }
+
+      this.socket = io(this.currentUrl, {
         auth: {
-          token: this.token,
+          token: this.token, // Sesuai backend: client.handshake.auth?.token
         },
         transports: ["websocket", "polling"],
         forceNew: true,
         autoConnect: true,
         timeout: 20000,
+        upgrade: true,
+        rememberUpgrade: false,
       })
 
       this.socket.on("connect", () => {
-        console.log("Connected to WebSocket server")
-
-        // After successful connection, try to join the chat namespace
-        if (this.socket) {
-          this.socket.emit("joinChatNamespace")
-        }
-
+        console.log("✅ Connected to WebSocket /chat namespace")
+        console.log("Socket ID:", this.socket?.id)
         resolve(this.socket!)
       })
 
       this.socket.on("connect_error", (error) => {
-        console.error("WebSocket connection error:", error)
-
-        // If namespace fails, try connecting to root namespace
-        if (error.message.includes("Invalid namespace")) {
-          console.log("Trying to connect to root namespace...")
-          this.connectToRoot().then(resolve).catch(reject)
-        } else {
-          reject(error)
-        }
+        console.error("❌ WebSocket connection error:", error)
+        console.error("Error details:", error.message)
+        reject(error)
       })
 
       this.socket.on("disconnect", (reason) => {
-        console.log("Disconnected from WebSocket:", reason)
+        console.log("🔌 Disconnected from WebSocket:", reason)
       })
 
       this.socket.on("error", (error) => {
-        console.error("WebSocket error:", error)
+        console.error("⚠️ WebSocket error:", error)
+      })
+
+      // Add debugging for all events
+      this.socket.onAny((eventName, ...args) => {
+        console.log(`📨 Received event: ${eventName}`, args)
       })
     })
   }
 
-  // Fallback method to connect to root namespace
-  private connectToRoot(): Promise<Socket> {
-    return new Promise((resolve, reject) => {
-      if (this.socket) {
-        this.socket.disconnect()
-      }
-
-      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001"
-
-      this.socket = io(wsUrl, {
-        auth: {
-          token: this.token,
-        },
-        transports: ["websocket", "polling"],
-        forceNew: true,
-        autoConnect: true,
-      })
-
-      this.socket.on("connect", () => {
-        console.log("Connected to WebSocket root namespace")
-        resolve(this.socket!)
-      })
-
-      this.socket.on("connect_error", (error) => {
-        console.error("Root namespace connection error:", error)
-        reject(error)
-      })
-    })
-  }
-
-  // Join a match room
+  // Join a match room - sesuai backend
   joinRoom(matchId: string) {
     if (this.socket && this.socket.connected) {
-      console.log(`Joining room: ${matchId}`)
-      // Try both possible event names
-      this.socket.emit("joinMatchRoom", { matchId })
-      this.socket.emit("join", { room: matchId })
-      this.socket.emit("joinRoom", { matchId })
+      console.log(`🚪 Joining room: ${matchId}`)
+
+      // Sesuai backend: @MessageBody('matchId') - perlu object dengan key matchId
+      const payload = { matchId }
+      this.socket.emit("joinMatchRoom", payload)
+      console.log("Join room payload sent:", payload)
+    } else {
+      console.error("❌ Socket not connected, cannot join room")
     }
   }
 
   // Leave a match room
   leaveRoom(matchId: string) {
     if (this.socket && this.socket.connected) {
-      console.log(`Leaving room: ${matchId}`)
-      this.socket.emit("leaveMatchRoom", { matchId })
+      console.log(`🚪 Leaving room: ${matchId}`)
+
+      const payload = { matchId }
+      this.socket.emit("leaveMatchRoom", payload)
+      console.log("Leave room payload sent:", payload)
+    } else {
+      console.error("❌ Socket not connected, cannot leave room")
     }
   }
 
-  // Send a message
+  // Send a message - sesuai screenshot Postman
   sendMessage(matchId: string, content: string) {
     if (this.socket && this.socket.connected) {
-      console.log(`Sending message to room ${matchId}:`, content)
+      console.log(`📤 Sending message to room ${matchId}:`, content)
 
-      // Try multiple event formats and log each attempt
-      const messageData = { matchId, content }
+      // Sesuai screenshot: {"matchId": "cm4bvdyZdmfm1oyspGmvhgz", "content": "Hallo Nona Ganteng"}
+      const messageData = {
+        matchId,
+        content,
+      }
 
-      console.log("Trying 'sendMessage' event:", messageData)
+      console.log("📤 Message payload:", messageData)
+      console.log("📤 Socket connected:", this.socket.connected)
+      console.log("📤 Socket ID:", this.socket.id)
+
+      // Sesuai screenshot: sendMessage event
       this.socket.emit("sendMessage", messageData)
-
-      console.log("Trying 'message' event:", messageData)
-      this.socket.emit("message", messageData)
-
-      console.log("Trying 'send' event:", messageData)
-      this.socket.emit("send", messageData)
-
-      // Also try with different data structures
-      console.log("Trying with room-based structure:")
-      this.socket.emit("sendMessage", { room: matchId, content })
-      this.socket.emit("message", { room: matchId, content })
+      console.log("📤 Message emitted successfully")
     } else {
-      console.error("Socket not connected, cannot send message")
+      console.error("❌ Socket not connected, cannot send message")
+      console.error("Socket state:", {
+        exists: !!this.socket,
+        connected: this.socket?.connected,
+        id: this.socket?.id,
+      })
     }
   }
 
-  // Listen for new messages
+  // Listen for new messages - sesuai screenshot: newMessage event
   onMessage(callback: (message: any) => void) {
     if (this.socket) {
-      this.socket.on("newMessage", callback)
-      this.socket.on("message", callback)
-      this.socket.on("messageReceived", callback)
+      console.log("👂 Setting up message listener for 'newMessage'")
+      this.socket.on("newMessage", (data) => {
+        console.log("📨 Received newMessage:", data)
+        callback(data)
+      })
     }
   }
 
   // Listen for joined room confirmation
   onJoinedRoom(callback: (data: any) => void) {
     if (this.socket) {
-      this.socket.on("joinedRoom", callback)
-      this.socket.on("joined", callback)
-      this.socket.on("roomJoined", callback)
+      console.log("👂 Setting up joinedRoom listener")
+      this.socket.on("joinedRoom", (data) => {
+        console.log("📨 Received joinedRoom:", data)
+        callback(data)
+      })
     }
   }
 
   // Listen for left room confirmation
   onLeftRoom(callback: (data: any) => void) {
     if (this.socket) {
-      this.socket.on("leftRoom", callback)
+      console.log("👂 Setting up leftRoom listener")
+      this.socket.on("leftRoom", (data) => {
+        console.log("📨 Received leftRoom:", data)
+        callback(data)
+      })
     }
   }
 
   // Listen for errors
   onError(callback: (error: any) => void) {
     if (this.socket) {
-      this.socket.on("error", callback)
-    }
-  }
-
-  // Listen for message acknowledgments
-  onMessageSent(callback: (data: any) => void) {
-    if (this.socket) {
-      this.socket.on("messageSent", callback)
-      this.socket.on("messageDelivered", callback)
-      this.socket.on("sent", callback)
+      console.log("👂 Setting up error listener")
+      this.socket.on("error", (error) => {
+        console.log("📨 Received error:", error)
+        callback(error)
+      })
     }
   }
 
   // Remove all listeners
   removeAllListeners() {
     if (this.socket) {
+      console.log("🧹 Removing all listeners")
       this.socket.removeAllListeners("newMessage")
       this.socket.removeAllListeners("joinedRoom")
       this.socket.removeAllListeners("leftRoom")
       this.socket.removeAllListeners("error")
+      this.socket.offAny()
     }
   }
 
   // Disconnect
   disconnect() {
     if (this.socket) {
+      console.log("🔌 Disconnecting WebSocket")
       this.removeAllListeners()
       this.socket.disconnect()
       this.socket = null
@@ -208,7 +204,19 @@ class WebSocketService {
 
   // Check connection status
   isConnected(): boolean {
-    return this.socket?.connected || false
+    const connected = this.socket?.connected || false
+    return connected
+  }
+
+  // Get socket info for debugging
+  getSocketInfo() {
+    return {
+      exists: !!this.socket,
+      connected: this.socket?.connected,
+      id: this.socket?.id,
+      hasToken: !!this.token,
+      url: this.currentUrl,
+    }
   }
 }
 
