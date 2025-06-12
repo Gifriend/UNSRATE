@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 // import { useRouter } from "next/navigation"
 import axios from 'axios';
 import { api } from '@/app/services/api';
+import { getRoleFromToken } from '@/app/services/role';
 
 interface LoginFormProps {
   setError: (error: string) => void;
@@ -63,10 +64,15 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
       if (response.status === 200 || response.status === 201) {
         const accessToken = payload.data.access_token;
         const refreshToken = payload.data.refresh_token;
+        const role = getRoleFromToken(accessToken)
 
         document.cookie = `access_token=${accessToken}; path=/; `;
         document.cookie = `refresh_token=${refreshToken}; path=/; `;
-        window.location.href = '/profile';
+         if (role === "ADMIN") {
+          window.location.href = "/dashboard"
+        } else {
+          window.location.href = "/profile"
+        }
         // Router.push('/profile');
       }
       if (response.status == 400) {
