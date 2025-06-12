@@ -15,11 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "UNSRATE",
-  description: "Dating app for UNSRAT people, dari baku kenal sampe baku pangge sayang",
+  description:
+    "Dating app for UNSRAT people, dari baku kenal sampe baku pangge sayang",
   icons: {
-    icon:[
-      {url:'/unsrate.png', type:'image/png'}
-    ],
+    icon: [{ url: "/unsrate.png", type: "image/png" }],
   },
 };
 
