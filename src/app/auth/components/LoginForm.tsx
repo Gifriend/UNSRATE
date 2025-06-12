@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Mail, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight, EyeOff, Eye } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,7 @@ interface LoginCredentials {
 export default function LoginForm({ setError, isMobile }: LoginFormProps) {
   // const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -64,7 +65,7 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
         const refreshToken = payload.data.refresh_token;
 
         document.cookie = `access_token=${accessToken}; path=/; `;
-        document.cookie = `refresh_token=${refreshToken}; path=/; `;  
+        document.cookie = `refresh_token=${refreshToken}; path=/; `;
         window.location.href = '/profile';
         // Router.push('/profile');
       }
@@ -81,7 +82,7 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
             'Login failed. Please check your credentials.'
         );
       } else {
-        setError(`An unexpected error occurred during login. ${error}` ,);
+        setError(`An unexpected error occurred during login. ${error}`);
       }
     } finally {
       setIsLoading(false);
@@ -120,12 +121,22 @@ export default function LoginForm({ setError, isMobile }: LoginFormProps) {
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id={`password-login${suffix}`}
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             className="pl-10"
             value={loginData.password}
             onChange={handleLoginChange}
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-2.5 text-muted-foreground">
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </div>
 
