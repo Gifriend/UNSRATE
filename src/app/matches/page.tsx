@@ -247,8 +247,6 @@ function MatchItem({
           <AvatarImage src={match.matchedUser.profilePicture || "/placeholder.svg"} alt={match.matchedUser.fullname} />
           <AvatarFallback>{match?.matchedUser?.fullname?.[0] || "U"}</AvatarFallback>
         </Avatar>
-        {/* Online status - needs separate implementation */}
-        {/* <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-background"></span> */}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -266,7 +264,7 @@ function MatchItem({
             match.unreadCount > 0 ? "text-foreground font-medium" : "text-muted-foreground",
           )}
         >
-          {match.lastMessage?.content || "Mulai percakapan"}
+          {match.lastMessage?.content && "Lanjutkan perakapan" || "Mulai percakapan"}
         </p>
       </div>
     </div>
