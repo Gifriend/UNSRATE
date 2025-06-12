@@ -8,6 +8,8 @@ import {
   User,
   Fingerprint,
   Calendar,
+  EyeOff,
+  Eye,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -40,6 +42,7 @@ export default function RegisterForm({
 }: RegisterFormProps) {
   // const router = useRouter()
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [registerData, setRegisterData] = useState<RegisterData>({
     fullname: '',
     nim: '',
@@ -70,6 +73,14 @@ export default function RegisterForm({
     e.preventDefault();
     setIsLoading(true);
     setError('');
+
+    const isValidStudentEmail =
+      /^[a-zA-Z0-9._%+-]+@student\.unsrat\.ac\.id$/.test(registerData.email);
+    if (!isValidStudentEmail) {
+      setError('Tolong gunakan akun UNSRAT anda');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const response = await api.post('auth/register', registerData);
@@ -202,12 +213,22 @@ export default function RegisterForm({
           <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             id={`password-register${suffix}`}
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             className="pl-10"
             value={registerData.password}
             onChange={handleRegisterChange}
             required
           />
+          <button
+            type="button"
+            className="absolute right-3 top-2.5 text-muted-foreground"
+            onClick={() => setShowPassword((prev) => !prev)}>
+            {showPassword ? (
+              <EyeOff className="h-4 w-4" />
+            ) : (
+              <Eye className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </div>
 
