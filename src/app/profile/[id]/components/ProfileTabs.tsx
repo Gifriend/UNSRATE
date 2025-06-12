@@ -56,7 +56,7 @@ export default function ProfileTabs({ profile, images, activeImageIndex, setActi
       <TabsContent value="photos" className="space-y-4">
         <Card>
           <CardContent className="p-4 md:p-6">
-            <h2 className="font-medium text-lg md:text-xl mb-4">{profile.fullname}'s Photos</h2>
+            <h2 className="font-medium text-lg md:text-xl mb-4">{profile.fullname}&apos;s Photos</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {images.map((image, index) => (
                 <div

@@ -76,7 +76,7 @@ export default function NotFound() {
             <div className="mt-6 p-4 bg-pink-50 rounded-lg border border-pink-100">
               <p className="text-sm text-pink-700">
                 <Heart className="h-4 w-4 inline mr-1" />
-                "Kadang tersesat itu perlu, supaya kita tahu jalan pulang yang benar"
+                &quot;Kadang tersesat itu perlu, supaya kita tahu jalan pulang yang benar&quot;
               </p>
             </div>
           </CardContent>
