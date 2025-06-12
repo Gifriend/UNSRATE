@@ -1,18 +1,18 @@
 "use client"
-import Link from 'next/link';
+import Link from 'next/link'
 import { usePathname } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { Heart, LogOut, MessageCircle, User } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
 
 export default function Header() {
   const pathname = usePathname()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
-      <div className="container flex h-16 items-center justify-between pl-10">
+      <div className="max-w-screen-xl mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/swipe" className="flex items-center gap-2">
           <div className="rounded-full bg-gradient-to-r from-pink-500 to-rose-500 p-1">
             <Heart className="h-5 w-5 text-white" />
@@ -27,7 +27,7 @@ export default function Header() {
             href="/swipe"
             className={cn(
               "flex flex-col items-center gap-1 text-xs font-medium transition-colors hover:text-foreground/80",
-              pathname === "/swipe" ? "text-pink-500" : "text-muted-foreground",
+              pathname === "/swipe" ? "text-pink-500" : "text-muted-foreground"
             )}
           >
             <Heart className="h-5 w-5" />
@@ -38,7 +38,7 @@ export default function Header() {
             href="/matches"
             className={cn(
               "flex flex-col items-center gap-1 text-xs font-medium transition-colors hover:text-foreground/80 relative",
-              pathname.includes("/matches") || pathname.includes("/chat") ? "text-pink-500" : "text-muted-foreground",
+              pathname.includes("/matches") || pathname.includes("/chat") ? "text-pink-500" : "text-muted-foreground"
             )}
           >
             <MessageCircle className="h-5 w-5" />
@@ -51,7 +51,7 @@ export default function Header() {
                 <div
                   className={cn(
                     "flex flex-col items-center gap-1 text-xs font-medium transition-colors hover:text-foreground/80",
-                    pathname === "/profile" ? "text-pink-500" : "text-muted-foreground",
+                    pathname === "/profile" ? "text-pink-500" : "text-muted-foreground"
                   )}
                 >
                   <Avatar className="h-6 w-6 border border-muted">
@@ -62,9 +62,9 @@ export default function Header() {
                 </div>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white ">
+            <DropdownMenuContent align="end" className="w-48 bg-white">
               <Link href="/profile">
-                <DropdownMenuItem className='border-b'>
+                <DropdownMenuItem className="border-b">
                   <User className="mr-2 h-4 w-4" />
                   <span>My Profile</span>
                 </DropdownMenuItem>
