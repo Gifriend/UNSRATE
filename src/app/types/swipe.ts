@@ -4,7 +4,8 @@ export interface Profile {
   fullname: string
   age: number
   bio: string
-  images: string[]
+  Photos: string[]
+  profilePicture?: string 
   gender?: "MALE" | "FEMALE" 
   fakultas?: string
   prodi?: string

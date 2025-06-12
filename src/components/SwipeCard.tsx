@@ -16,17 +16,17 @@ export default function SwipeCard({ profile }: SwipeCardProps) {
   const [showDetails, setShowDetails] = useState<boolean>(false)
 
   const nextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex === profile.images.length - 1 ? 0 : prevIndex + 1))
+    setCurrentImageIndex((prevIndex) => (prevIndex === profile.Photos.length - 1 ? 0 : prevIndex + 1))
   }
 
   const prevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? profile.images.length - 1 : prevIndex - 1))
+    setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? profile.Photos.length - 1 : prevIndex - 1))
   }
 
   const displayName = profile.fullname || profile.name
 
   const allImages =
-    profile.images && profile.images.length > 0 ? profile.images : ["/placeholder.svg?height=600&width=400"]
+    profile.Photos && profile.Photos.length > 0 ? profile.Photos : ["/placeholder.svg?height=600&width=400"]
 
   return (
     <div className="relative w-full max-w-md mx-auto h-[70vh] bg-background rounded-3xl shadow-lg overflow-hidden border">

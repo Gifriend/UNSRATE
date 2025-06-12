@@ -17,21 +17,21 @@ export default function NewCard({ profile }: SwipeCardProps) {
 
   const nextImage = () => {
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === profile.images.length - 1 ? 0 : prevIndex + 1
+      prevIndex === profile.Photos.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   const prevImage = () => {
     setCurrentImageIndex((prevIndex) =>
-      prevIndex === 0 ? profile.images.length - 1 : prevIndex - 1
+      prevIndex === 0 ? profile.Photos.length - 1 : prevIndex - 1
     );
   };
 
   const displayName = profile.fullname || profile.name;
 
   const allImages =
-    profile.images && profile.images.length > 0
-      ? profile.images
+    profile.Photos && profile.Photos.length > 0
+      ? profile.Photos
       : ["/placeholder.svg?height=600&width=400"];
 
   return (
