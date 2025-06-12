@@ -105,6 +105,7 @@ export const ReportedUsersTable = ({ reportedUsers, onDelete }: ReportedUsersTab
           <DialogHeader>
             <DialogTitle>Detail Laporan - {selectedUser?.user.fullname}</DialogTitle>
           </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto pr-2">
             <div className="space-y-4">
               {userReports.map((report) => (
                 <Card key={report.reportId}>
@@ -128,6 +129,7 @@ export const ReportedUsersTable = ({ reportedUsers, onDelete }: ReportedUsersTab
                 <p className="text-center text-muted-foreground py-4">Tidak ada detail laporan yang ditemukan</p>
               )}
             </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
