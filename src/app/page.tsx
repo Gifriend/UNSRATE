@@ -28,7 +28,7 @@ const App = () => {
         id="landing-cards"
         className=" w-full px-4 mx-auto gap-5 mt-20 md:flex md:justify-center lg:gap-4 md:gap-4"
       >
-        <div className="h-[400px] w-[300px] mx-auto bg-gray-400 md:mx-0 md:-rotate-2 lg:mt-20">
+        <div className="h-[400px] w-[300px] mx-auto bg-gray-400 md:mx-0 md:-rotate-2 lg:mt-20 box2">
           <Image
             src={mikel}
             className="w-full"
@@ -37,7 +37,7 @@ const App = () => {
             height={1080}
           />
         </div>
-        <div className="h-[400px] w-[300px] mx-auto bg-green-400 md:mx-0 md:rotate-2 lg:rotate-0">
+        <div className="h-[400px] w-[300px] mx-auto bg-green-400 md:mx-0 md:rotate-2 lg:rotate-0 box2">
           <Image
             src={clarissa}
             className="w-full"
@@ -46,10 +46,10 @@ const App = () => {
             height={1080}
           />
         </div>
-        <div className="h-[400px] md:hidden lg:block w-[300px] md:mx-0 mx-auto md:rotate-2 bg-gray-400 lg:mt-20">
+        <div className="h-[400px] md:hidden lg:block w-[300px] md:mx-0 mx-auto md:rotate-2 bg-gray-400 lg:mt-20 box2">
           <Image
             src={mario}
-            className="w-full"
+            className="w-full h-full"
             alt="test"
             width={1920}
             height={1080}
