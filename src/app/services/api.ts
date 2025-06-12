@@ -92,4 +92,22 @@ export const matchApi = {
         throw error
       })
   },
+  reportUser: (reportedUserId: string, data: { reason: string }) => {
+    console.log(`Calling API: POST /report/users/${reportedUserId}`)
+    return api
+      .post(`/report/users/${reportedUserId}`, data)
+      .then((response) => {
+        console.log(`Report user ${reportedUserId} API response:`, response)
+        return response
+      })
+      .catch((error) => {
+        console.error(`Report user ${reportedUserId} API error:`, error)
+        throw error
+      })
+  },
 }
+export const reportApi = {
+  createReport: (reportedUserId: string, reason: string) => {
+    return api.post(`report/users/${reportedUserId}`, { reason });
+  },
+};

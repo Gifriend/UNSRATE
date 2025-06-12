@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState } from "react"
 import Image from "next/image"
 import { Camera, Edit3 } from "lucide-react"
@@ -7,48 +9,90 @@ import { Button } from "@/components/ui/button"
 import { PhotoUploadModal } from "@/components/photo-upload-modal"
 import { useToast } from "@/components/ui/toast-context"
 import { api } from "@/app/services/api"
-import { UserProfile } from "@/app/types/userProfileTypes"
+import type { UserProfile } from "@/app/types/userProfileTypes"
 
 interface ProfileHeaderProps {
   profile: UserProfile
   setProfile?: React.Dispatch<React.SetStateAction<UserProfile | null>>
+  onProfileUpdate?: () => void // Optional callback for additional refresh logic
 }
 
-export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProps) {
+export default function ProfileHeader({ profile, setProfile, onProfileUpdate }: ProfileHeaderProps) {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false)
   const { toast } = useToast()
+
+  const refreshProfile = async () => {
+    try {
+      const profileResponse = await api.get("users/profile")
+      if (profileResponse.data.statusCode === 200 && setProfile) {
+        // Transform the backend response to match your UserProfile interface
+        const profileData = profileResponse.data.data
+        const transformedProfile: UserProfile = {
+          id: profileData.id,
+          fullname: profileData.fullname,
+          nim: profileData.nim,
+          email: profileData.email,
+          profilePicture: profileData.profilePicture,
+          Photos: profileData.Photos || [],
+          bio: profileData.bio,
+          fakultas: profileData.fakultas,
+          prodi: profileData.prodi,
+          age: profileData.age,
+          gender: profileData.gender,
+          alamat: profileData.alamat,
+          verified: profileData.verified,
+          interests: profileData.interests || [],
+          profileCompletion: profileData.profileCompletion || 0,
+          missingFields: profileData.missingFields || [],
+        }
+
+        setProfile(transformedProfile)
+
+        // Call additional refresh callback if provided
+        if (onProfileUpdate) {
+          onProfileUpdate()
+        }
+      }
+    } catch (error) {
+      console.error("Error refreshing profile:", error)
+      toast({
+        title: "Warning",
+        description: "Profile updated but failed to refresh display",
+        variant: "default",
+      })
+    }
+  }
 
   const handlePhotoUpload = async (file: File) => {
     setIsUploadingPhoto(true)
     try {
       const formData = new FormData()
-      formData.append('files', file)
+      formData.append("files", file)
 
       // Upload photo using the correct endpoint
-      const response = await api.post('users/profile-picture', formData, {
+      const response = await api.post("users/profile-picture", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       })
 
       if (response.data.statusCode === 200) {
-        // Refetch full profile data after successful upload
-        const profileResponse = await api.get('users/profile')
-        if (profileResponse.data.statusCode === 200 && setProfile) {
-          setProfile(profileResponse.data.data)
-        }
+        // Automatically refresh profile data after successful upload
+        await refreshProfile()
 
         toast({
           title: "Success",
           description: "Profile picture updated successfully",
         })
+      } else {
+        throw new Error("Upload failed")
       }
     } catch (error) {
       console.error("Error uploading photo:", error)
       toast({
         title: "Error",
         description: "Failed to upload profile picture",
-        variant: "destructive"
+        variant: "destructive",
       })
     } finally {
       setIsUploadingPhoto(false)
@@ -59,23 +103,24 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
     <div className="relative mb-6 md:mb-10">
       {/* Background gradient */}
       <div className="h-40 md:h-60 bg-gradient-to-r from-pink-500 to-rose-500 rounded-t-3xl"></div>
-      
+
       {/* Profile picture section */}
       <div className="absolute top-28 left-4 md:top-40 md:left-10 group">
         <div className="relative rounded-full border-4 border-background bg-muted h-24 w-24 md:h-40 md:w-40 overflow-hidden">
           {profile.profilePicture ? (
-            <Image 
-              src={profile.profilePicture} 
-              alt="Profile Photo" 
-              fill 
-              className="object-cover" 
+            <Image
+              src={profile.profilePicture || "/placeholder.svg"}
+              alt="Profile Photo"
+              fill
+              className="object-cover"
+              key={profile.profilePicture} // Force re-render when URL changes
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground text-xl md:text-4xl font-bold">
               {profile.fullname.charAt(0).toUpperCase()}
             </div>
           )}
-          
+
           {/* Hover overlay */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer">
             <PhotoUploadModal
@@ -86,15 +131,16 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
                   variant="secondary"
                   size="sm"
                   className="bg-white/90 hover:bg-white text-gray-800 shadow-lg backdrop-blur-sm"
+                  disabled={isUploadingPhoto}
                 >
                   <Camera className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                  <span className="text-xs md:text-sm">Edit</span>
+                  <span className="text-xs md:text-sm">{isUploadingPhoto ? "Uploading..." : "Edit"}</span>
                 </Button>
               }
             />
           </div>
         </div>
-        
+
         {/* Edit button badge */}
         <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2">
           <PhotoUploadModal
@@ -120,20 +166,20 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
         {/* Upload status indicator */}
         {isUploadingPhoto && (
           <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center">
-            <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-gray-600 shadow-sm">
+            <div className="bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-xs text-gray-600 shadow-sm animate-pulse">
               Uploading...
             </div>
           </div>
         )}
       </div>
-      
+
       {/* Profile completion card */}
       <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-lg p-2 md:p-3">
         <div className="text-xs text-muted-foreground">Profile Completion</div>
         <div className="w-full bg-muted rounded-full h-2 mt-1">
-          <div 
-            className="bg-pink-500 h-2 rounded-full transition-all duration-500" 
-            style={{width: `${profile.profileCompletion}%`}}
+          <div
+            className="bg-pink-500 h-2 rounded-full transition-all duration-500"
+            style={{ width: `${profile.profileCompletion}%` }}
           ></div>
         </div>
         <div className="text-xs mt-1 font-medium">{profile.profileCompletion}%</div>
@@ -159,13 +205,11 @@ export default function ProfileHeader({ profile, setProfile }: ProfileHeaderProp
             </>
           )}
         </div>
-        
+
         {profile.missingFields && profile.missingFields.length > 0 && (
           <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-800">
             <h3 className="font-medium text-sm mb-1">Complete your profile</h3>
-            <p className="text-xs">
-              Missing information: {profile.missingFields.join(', ')}
-            </p>
+            <p className="text-xs">Missing information: {profile.missingFields.join(", ")}</p>
           </div>
         )}
       </div>
