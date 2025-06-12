@@ -105,7 +105,7 @@ export const ReportedUsersTable = ({ reportedUsers, onDelete }: ReportedUsersTab
           <DialogHeader>
             <DialogTitle>Detail Laporan - {selectedUser?.user.fullname}</DialogTitle>
           </DialogHeader>
-          <div className="max-h-[60vh] overflow-y-auto pr-2">
+          <div className="max-h-[60vh] overflow-y-auto pr-2 bg-white">
             <div className="space-y-4">
               {userReports.map((report) => (
                 <Card key={report.reportId}>
