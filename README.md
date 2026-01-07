@@ -1,38 +1,102 @@
-# sv
+# Unsrate
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A modern swipe-based rating application built with SvelteKit, TypeScript, and Tailwind CSS.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+- 🔍 **Explore Profiles** - Swipe through user profiles with smooth animations
+- 💬 **Chat** - Connect with matched users
+- 👤 **User Profiles** - View detailed profile information
+- 🎨 **Modern UI** - Built with Tailwind CSS and Lucide icons
+- ⚡ **Fast** - Powered by Vite and Bun
+- another features coming soon
 
+## Tech Stack
+
+- **Framework**: SvelteKit 2
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS 4
+- **Icons**: Lucide Svelte
+- **Build Tool**: Vite 7
+- **Package Manager**: Bun
+- **Testing**: Vitest + Playwright
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) (v1.0 or higher)
+
+### Installation
+
+1. Clone the repository:
 ```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+git clone <your-repo-url>
+cd unsrate
 ```
 
-## Developing
+2. Install dependencies:
+```sh
+bun install
+```
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+### Development
+
+Start the development server:
 
 ```sh
-npm run dev
+bun run dev
 
 # or start the server and open the app in a new browser tab
-npm run dev -- --open
+bun run dev --open
 ```
 
-## Building
+The app will be available at `http://localhost:5173`
+
+### Building for Production
 
 To create a production version of your app:
 
 ```sh
-npm run build
+bun run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can preview the production build with `bun run preview`.
+
+### Other Commands
+
+```sh
+# Type checking
+bun run check
+
+# Linting
+bun run lint
+
+# Format code
+bun run format
+
+# Run tests
+bun run test
+```
+
+## Project Structure
+
+```
+unsrate/
+├── src/
+│   ├── lib/
+│   │   ├── components/     # Reusable Svelte components
+│   │   ├── data/          # Mock data and dummy profiles
+│   │   ├── services/      # API client services
+│   │   └── types/         # TypeScript type definitions
+│   └── routes/
+│       ├── explore/       # Profile exploration page
+│       ├── chat/          # Chat interface
+│       ├── login/         # Authentication page
+│       └── user/[id]/     # User profile pages
+├── static/                # Static assets
+└── ...config files
+```
+
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
