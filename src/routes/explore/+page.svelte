@@ -6,13 +6,15 @@
   
   // Components
   import ActionButtons from '$lib/components/ActionButtons.svelte';
-  import BottomNav from '$lib/components/BottomNav.svelte'; // Ganti Header dengan ini
+  import BottomNav from '$lib/components/BottomNav.svelte';
   import SkeletonCard from '$lib/components/SkeletonCard.svelte';
   import NewCard from '$lib/components/NewCard.svelte';
   
-  // Services & Types
-  import { api } from '$lib/services/client-api';
-  import type { Profile, ExploreResponse } from '$lib/types/explore'; // Pastikan type explore benar
+  // Types
+  import type { Profile, ExploreResponse } from '$lib/types/explore';
+  
+  // MOCK DATA (Import data yang baru kita buat)
+  import { MOCK_PROFILES } from '$lib/data/dummyProfile';
 
   // --- STATE ---
   let currentIndex = 0;
@@ -20,13 +22,12 @@
   let isLoading = true;
   let error: string | null = null;
   let isFetchingMore = false;
-  let swipeDirection: 'left' | 'right' | null = null; // Visual only
+  let swipeDirection: 'left' | 'right' | null = null; 
 
-  // Reactive
   $: currentProfile = profiles[currentIndex];
   $: remaining = profiles.length - currentIndex;
 
-  // --- API HANDLER ---
+  // --- MOCK API HANDLER ---
   const fetchProfiles = async (isLoadMore = false) => {
     if (isLoadMore && isFetchingMore) return;
     
@@ -34,19 +35,23 @@
       if (!isLoadMore) isLoading = true;
       else isFetchingMore = true;
 
-      // NOTE: Sesuaikan structure ini dengan return backend Anda.
-      // Jika backend return { data: { profiles: [...] } }, gunakan response.data.profiles
-      // Jika backend return { profiles: [...] }, gunakan response.profiles
-      const response = await api.get<{ data: { profiles: Profile[] } }>("discovery/feed");
+      // SIMULASI API DELAY (1.5 detik)
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Asumsi backend mengembalikan structure standard
-      const newProfiles = response.data?.profiles || [];
+      // Menggunakan data dummy lokal
+      const newProfiles = MOCK_PROFILES;
 
       if (!isLoadMore) {
         profiles = newProfiles;
         currentIndex = 0;
       } else if (newProfiles.length > 0) {
-        profiles = [...profiles, ...newProfiles];
+        // Untuk demo load more, kita duplicate data mock agar list bertambah
+        const moreProfiles = newProfiles.map(p => ({
+            ...p, 
+            id: p.id + Math.random(), // id unik palsu
+            name: p.name + ' (Copy)' 
+        }));
+        profiles = [...profiles, ...moreProfiles];
       }
     } catch (err) {
       console.error("Fetch error:", err);
@@ -62,21 +67,37 @@
 
     // 1. Visual Animation
     swipeDirection = action === 'LIKE' ? 'right' : 'left';
-    const profileId = currentProfile.id;
+    // const profileId = currentProfile.id; // Tidak dipakai di mock tapi disimpan untuk nanti
 
-    // 2. Logic Delay (biarkan animasi jalan dulu)
+    // 2. Logic Delay & Mock API Call
     setTimeout(async () => {
+      // Pindahkan index dulu agar UI responsif
       currentIndex++;
       swipeDirection = null;
 
-      // 3. API Call (Optimistic UI)
+      // 3. Simulasi API Call Backend (Optimistic UI)
       try {
-        await api.post("explores", { exploredUserId: profileId, action });
-        // Cek match logic here jika perlu (response.match)
+        // console.log(`Simulating API call: ${action} on ${profileId}`);
+        // await api.post("explores", ...); <-- DIBUANG DULU
+        
+        // Simulasi response sukses dari backend
+        const mockResponse: ExploreResponse = {
+            statusCode: 201,
+            message: "Success",
+            swipe: {
+                id: "swipe_123",
+                swiperUserId: "me",
+                swipedUserId: currentProfile.id,
+                action: action,
+                createdAt: new Date().toISOString()
+            }
+            // Tambahkan object match di sini jika ingin mengetes UI Match
+        };
+
       } catch (e) {
         console.error("Swipe failed", e);
       }
-    }, 250);
+    }, 250); // Waktu animasi swipe selesai
   };
 
   // --- LIFECYCLE ---
@@ -84,8 +105,8 @@
     fetchProfiles();
   });
 
-  // Auto fetch more jika sisa kartu <= 2
-  $: if (remaining <= 2 && remaining > 0 && !isFetchingMore && !isLoading) {
+  // Auto fetch more jika sisa kartu <= 1 (Mock logic)
+  $: if (remaining <= 1 && remaining > 0 && !isFetchingMore && !isLoading) {
     fetchProfiles(true);
   }
 </script>
@@ -144,7 +165,6 @@
         <ActionButtons 
           on:like={() => handleAction('LIKE')} 
           on:dislike={() => handleAction('DISLIKE')} 
-          showSuperLike={true}
         />
       </div>
 
