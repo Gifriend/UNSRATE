@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { untrack } from 'svelte';
   import { authClient } from '$lib/auth-client';
   import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 
@@ -9,11 +7,6 @@
   let isLoading = $state(false);
   let error = $state<string | null>(null);
 
-  $effect(() => {
-    if (auth.isAuthenticated) {
-      untrack(() => goto('/explore'));
-    }
-  });
 
   const handleGoogleLogin = async () => {
     try {
