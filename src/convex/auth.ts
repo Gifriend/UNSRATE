@@ -3,13 +3,12 @@ import { convex } from "@convex-dev/better-auth/plugins";
 import { components } from "./_generated/api";
 import type { DataModel } from "./_generated/dataModel.d";
 import { query } from "./_generated/server";
-import { betterAuth, type BetterAuthOptions } from "better-auth/minimal";
+import { betterAuth } from "better-auth/minimal";
 import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:5173";
+const VALID_EMAIL_DOMAIN = "@student.unsrat.ac.id";
 
-// The component client has methods needed for integrating Convex with Better Auth,
-// as well as helper methods for general use.
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
 export const createAuth = (ctx: GenericCtx<DataModel>) => {
@@ -21,13 +20,23 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
     ],
     database: authComponent.adapter(ctx),
     emailAndPassword: {
-      enabled: true,
-      requireEmailVerification: false,
+      enabled: false,
     },
     socialProviders: {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID ?? "",
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      },
+    },
+    callbacks: {
+      async onSignIn({ user }: { user: { email?: string | null } }) {
+        if (!user.email) {
+          return { error: "Email tidak ditemukan" };
+        }
+        if (!user.email.toLowerCase().endsWith(VALID_EMAIL_DOMAIN)) {
+          return { error: "Gunakan email @student.unsrat.ac.id" };
+        }
+        return true;
       },
     },
     plugins: [
@@ -36,8 +45,6 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
   })
 }
 
-// Example function for getting the current user
-// Feel free to edit, omit, etc.
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
