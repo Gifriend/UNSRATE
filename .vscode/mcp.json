@@ -1,6 +1,6 @@
 {
 	"servers": {
-		"my-mcp-server-de9e5644": {
+		"svelte": {
 			"type": "stdio",
 			"command": "npx",
 			"args": [
