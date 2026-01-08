@@ -1,3 +1,72 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@theme {
+  /* --- 1. BRAND COLORS (Palette Salmverse) --- */
+  /* Ungu Gelap (Untuk Navbar Mobile / Text Judul) */
+  --color-brand-900: #271539; 
+  /* Ungu Medium (Secondary) */
+  --color-brand-700: #501f5a;
+  /* Ungu Muda (Accent) */
+  --color-brand-500: #915ba4;
+  /* Rose Pink (PRIMARY - Tombol Utama) */
+  --color-brand-300: #c2649b;
+  /* Pink Terang (Highlight/Gradient) */
+  --color-brand-100: #e783b5;
+  
+  /* --- 2. NEUTRAL COLORS (Palette Grey) --- */
+  /* Background Halaman (Sangat Terang) */
+  --color-grey-50:  #F9FAFB;
+  /* Background Card (Putih Bersih) */
+  --color-white:    #FFFFFF;
+  
+  /* Text Colors */
+  --color-grey-400: #9EA3AE; /* Text pasif/icon mati */
+  --color-grey-500: #6C727F; /* Text deskripsi */
+  --color-grey-900: #161D21; /* Text utama */
+
+  /* --- 3. SEMANTIC ALIAS (Pemetaan Logic) --- */
+  
+  /* DEFAULT BACKGROUND & TEXT */
+  --color-bg-app: var(--color-grey-50);    /* Latar belakang global */
+  --color-bg-card: var(--color-white);     /* Kartu profil */
+  --color-text-main: var(--color-grey-900);/* Warna tulisan standar */
+
+  /* BUTTONS & ACTIONS */
+  --color-primary: var(--color-brand-300);       /* Warna tombol */
+  --color-primary-hover: var(--color-brand-500); /* Warna tombol saat di-hover */
+}
+
+/* --- 4. GLOBAL RESET (JAWABAN PERTANYAAN ANDA) --- */
+/* Kode ini membuat default background otomatis terpasang */
+@layer base {
+  body {
+    background-color: var(--color-bg-app); /* Otomatis abu-abu muda */
+    color: var(--color-text-main);         /* Otomatis hitam gelap */
+    /* Opsional: Membuat font lebih halus */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* --- 5. UTILITY CLASSES --- */
+@layer utilities {
+  /* Gradient Keren untuk Tombol/Logo */
+  .bg-gradient-brand {
+    background-image: linear-gradient(to right, var(--color-brand-700), var(--color-brand-300));
+  }
+  
+  /* Gradient Halus untuk Background Blobs (hiasan) */
+  .bg-gradient-soft {
+    background-image: linear-gradient(to top right, #e783b5, #ffb1c4);
+  }
+
+  /* Text Gradient (UNSRATE) */
+  .text-gradient-brand {
+    background-image: linear-gradient(to right, var(--color-brand-300), #e783b5);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

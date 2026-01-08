@@ -111,7 +111,7 @@
   }
 </script>
 
-<div class="min-h-screen bg-slate-50 flex flex-col relative overflow-hidden pb-20">
+<div class="min-h-screen  flex flex-col relative overflow-hidden">
   
   <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
   <div class="fixed bottom-[10%] right-[-10%] w-[50%] h-[40%] bg-purple-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>

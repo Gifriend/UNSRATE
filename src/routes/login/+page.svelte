@@ -73,7 +73,9 @@
     <div class="mt-8 text-center">
       <p class="text-xs text-slate-400 px-4">
         Dengan masuk, kamu menyetujui 
+        <!-- svelte-ignore a11y_invalid_attribute -->
         <a href="#" class="underline hover:text-rose-500">Syarat & Ketentuan</a> serta 
+        <!-- svelte-ignore a11y_invalid_attribute -->
         <a href="#" class="underline hover:text-rose-500">Kebijakan Privasi</a> UNSRATE.
       </p>
     </div>
