@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fade, fly, scale } from 'svelte/transition';
+  import { fly, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { ZapIcon } from 'lucide-svelte';
+  import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
   
   // Components
   import ActionButtons from '$lib/components/ActionButtons.svelte';
@@ -16,16 +17,16 @@
   // MOCK DATA (Import data yang baru kita buat)
   import { MOCK_PROFILES } from '$lib/data/dummyProfile';
 
-  // --- STATE ---
-  let currentIndex = 0;
-  let profiles: Profile[] = [];
-  let isLoading = true;
-  let error: string | null = null;
-  let isFetchingMore = false;
-  let swipeDirection: 'left' | 'right' | null = null; 
+  const auth = useAuth();
+  let currentIndex = $state(0);
+  let profiles = $state<Profile[]>([]);
+  let isLoading = $state(true);
+  let error = $state<string | null>(null);
+  let isFetchingMore = $state(false);
+  let swipeDirection = $state<'left' | 'right' | null>(null); 
 
-  $: currentProfile = profiles[currentIndex];
-  $: remaining = profiles.length - currentIndex;
+  const currentProfile = $derived(profiles[currentIndex]);
+  const remaining = $derived(profiles.length - currentIndex);
 
   // --- MOCK API HANDLER ---
   const fetchProfiles = async (isLoadMore = false) => {
@@ -105,10 +106,11 @@
     fetchProfiles();
   });
 
-  // Auto fetch more jika sisa kartu <= 1 (Mock logic)
-  $: if (remaining <= 1 && remaining > 0 && !isFetchingMore && !isLoading) {
-    fetchProfiles(true);
-  }
+  $effect(() => {
+    if (remaining <= 1 && remaining > 0 && !isFetchingMore && !isLoading) {
+      fetchProfiles(true);
+    }
+  });
 </script>
 
 <div class="min-h-screen  flex flex-col relative overflow-hidden">
@@ -128,7 +130,7 @@
     {:else if error}
       <div class="text-center py-20">
         <p class="text-red-500 mb-4">{error}</p>
-        <button on:click={() => fetchProfiles(false)} class="bg-pink-500 text-white px-6 py-2 rounded-full">Coba Lagi</button>
+        <button onclick={() => fetchProfiles(false)} class="bg-pink-500 text-white px-6 py-2 rounded-full">Coba Lagi</button>
       </div>
 
     {:else if currentProfile}
@@ -175,7 +177,7 @@
         </div>
         <h2 class="text-xl font-bold text-gray-800">Tidak ada orang baru</h2>
         <p class="text-gray-500 mt-2 mb-6">Coba perlebar jarak pencarian kamu.</p>
-        <button on:click={() => fetchProfiles(false)} class="bg-linear-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full shadow-lg hover:scale-105 transition">
+        <button onclick={() => fetchProfiles(false)} class="bg-linear-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full shadow-lg hover:scale-105 transition">
           Refresh
         </button>
       </div>
