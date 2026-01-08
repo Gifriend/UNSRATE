@@ -1,24 +1,33 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  
-  // --- STATE ---
-  let isLoading = false;
+  import { untrack } from 'svelte';
+  import { authClient } from '$lib/auth-client';
+  import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 
-  // --- HANDLER ---
+  const auth = useAuth();
+
+  let isLoading = $state(false);
+  let error = $state<string | null>(null);
+
+  $effect(() => {
+    if (auth.isAuthenticated) {
+      untrack(() => goto('/explore'));
+    }
+  });
+
   const handleGoogleLogin = async () => {
     try {
       isLoading = true;
-      
-      //TODO: Integrate Google OAuth here
-      
-      console.log("Redirecting to Google OAuth...");
-      
-      setTimeout(() => {
-        goto('/explore'); 
-      }, 1500);
+      error = null;
 
-    } catch (error) {
-      console.error(error);
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: '/explore',
+      });
+
+    } catch (err) {
+      console.error(err);
+      error = 'Gagal login dengan Google. Silakan coba lagi.';
       isLoading = false;
     }
   };
@@ -47,12 +56,18 @@
     </div>
 
     <div class="space-y-4">
+      {#if error}
+        <div class="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl">
+          {error}
+        </div>
+      {/if}
+      
       <button 
-        on:click={handleGoogleLogin}
-        disabled={isLoading}
-        class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100 font-semibold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 group relative overflow-hidden"
+        onclick={handleGoogleLogin}
+        disabled={isLoading || auth.isLoading}
+        class="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 active:bg-slate-100 font-semibold py-3.5 px-4 rounded-xl shadow-sm transition-all duration-200 group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {#if isLoading}
+        {#if isLoading || auth.isLoading}
           <svg class="animate-spin h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -73,8 +88,8 @@
     <div class="mt-8 text-center">
       <p class="text-xs text-slate-400 px-4">
         Dengan masuk, kamu menyetujui 
-        <a href="#" class="underline hover:text-rose-500">Syarat & Ketentuan</a> serta 
-        <a href="#" class="underline hover:text-rose-500">Kebijakan Privasi</a> UNSRATE.
+        <a href="/terms" class="underline hover:text-rose-500">Syarat & Ketentuan</a> serta 
+        <a href="/privacy" class="underline hover:text-rose-500">Kebijakan Privasi</a> UNSRATE.
       </p>
     </div>
 
