@@ -3,6 +3,7 @@
 	import favicon from '$lib/assets/favicon.svg';
 	import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { authClient } from '$lib/auth-client';
+	import AuthGuard from '$lib/components/AuthGuard.svelte';
 
 	let { children, data } = $props();
 
@@ -13,4 +14,6 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
-{@render children()}
+<AuthGuard>
+	{@render children()}
+</AuthGuard>

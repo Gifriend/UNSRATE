@@ -1,9 +1,19 @@
-<script>
-  import { Home, HeartIcon, MessageCircleIcon, UserIcon } from 'lucide-svelte';
-  import { page } from '$app/stores';
+<script lang="ts">
+  import { Home, HeartIcon, MessageCircleIcon, UserIcon, LogOutIcon } from 'lucide-svelte';
+  import { page } from '$app/state';
+  import { logout } from '$lib/stores/auth';
+  import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 
-  // Helper untuk mengecek route aktif
-  $: isActive = (/** @type {string} */ path) => $page.url.pathname.startsWith(path);
+  const auth = useAuth();
+  const isActive = (path: string) => page.url.pathname.startsWith(path);
+  let isLoggingOut = $state(false);
+  
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    isLoggingOut = true;
+    await logout();
+    isLoggingOut = false;
+  }
 </script>
 
 <nav class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 py-3 pb-safe z-50">
@@ -28,6 +38,22 @@
       <UserIcon size={24} strokeWidth={isActive('/profile') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Profile</span>
     </a>
+
+    <button 
+      onclick={handleLogout}
+      disabled={isLoggingOut}
+      class="flex flex-col items-center gap-1 transition-colors text-gray-400 hover:text-red-500 disabled:opacity-50"
+    >
+      {#if isLoggingOut}
+        <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+      {:else}
+        <LogOutIcon size={24} strokeWidth={2} />
+      {/if}
+      <span class="text-[10px] font-medium">Keluar</span>
+    </button>
 
   </div>
 </nav>
