@@ -111,7 +111,7 @@
       <!-- Profile Card (Tinder Style) -->
       <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-4 md:mb-6">
         <!-- Photo -->
-        <div class="relative aspect-[4/3] md:aspect-[16/9] bg-linear-to-br from-brand-100 to-brand-300">
+        <div class="relative aspect-4/3 md:aspect-video bg-linear-to-br from-brand-100 to-brand-300">
           {#if currentPhoto}
             <img
               src={currentPhoto}
