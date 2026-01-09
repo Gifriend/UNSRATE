@@ -8,7 +8,7 @@
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import BottomNav from '$lib/components/BottomNav.svelte';
 
-	const hiddenRoutes = ['/login', '/register', '/'];
+	const hiddenRoutes = ['/login', '/register', '/', '/onboarding'];
 	let isHidden = $derived(hiddenRoutes.includes($page.url.pathname));
 
 	let { children, data } = $props();

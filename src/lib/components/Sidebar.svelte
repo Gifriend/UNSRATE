@@ -10,10 +10,10 @@
   } from 'lucide-svelte'; 
 
   const menuItems = [
-    { icon: ZapIcon, label: 'Explore', href: '/explore' },
-    { icon: HeartIcon, label: 'Likes & Matches', href: '/matches' },
-    { icon: MessageCircleIcon, label: 'Messages', href: '/chat' },
-    { icon: UserIcon, label: 'Profile', href: '/profile' },
+    { icon: ZapIcon, label: 'Jelajahi', href: '/explore' },
+    { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches' },
+    { icon: MessageCircleIcon, label: 'Pesan', href: '/chat' },
+    { icon: UserIcon, label: 'Profil', href: '/profile' },
   ];
 
   $: activePath = $page.url.pathname;
@@ -61,11 +61,11 @@
   <div class="p-4 mt-auto space-y-1">
     <button class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-grey-100 hover:text-text-main transition-colors text-left group">
       <SettingsIcon size={26} />
-      <span class="hidden lg:block text-[15px]">Settings</span>
+      <span class="hidden lg:block text-[15px]">Pengaturan</span>
     </button>
     <button class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group">
       <LogOutIcon size={26} />
-      <span class="hidden lg:block text-[15px]">Logout</span>
+      <span class="hidden lg:block text-[15px]">Keluar</span>
     </button>
   </div>
 

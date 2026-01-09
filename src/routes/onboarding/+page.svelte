@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
-  import { useConvexClient } from 'convex-svelte';
+  import { useConvexClient, useQuery } from 'convex-svelte';
   import { api } from '$convex/_generated/api';
   import {
     FAKULTAS_LIST,
@@ -12,6 +12,14 @@
 
   const auth = useAuth();
   const client = useConvexClient();
+  const profileCheck = useQuery(api.profiles.checkProfileComplete, {});
+
+  // Redirect jika user sudah punya profil lengkap
+  $effect(() => {
+    if (!profileCheck.isLoading && profileCheck.data?.hasProfile && profileCheck.data?.isComplete) {
+      goto('/explore', { replaceState: true });
+    }
+  });
 
   let currentStep = $state(1);
   const totalSteps = 4;
@@ -25,6 +33,9 @@
   let angkatan = $state<number | ''>('');
   let bio = $state('');
   let photoUrl = $state('');
+  let photoFile = $state<File | null>(null);
+  let isUploading = $state(false);
+  let isDragging = $state(false);
 
   let isSubmitting = $state(false);
   let error = $state<string | null>(null);
@@ -126,7 +137,7 @@
               type="text"
               id="fullname"
               bind:value={fullname}
-              placeholder="Masukkan nama lengkap"
+              placeholder="Masukkan Nama Lengkap"
               class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all outline-none"
             />
           </div>
@@ -137,7 +148,7 @@
               type="text"
               id="nickname"
               bind:value={nickname}
-              placeholder="Nama panggilan"
+              placeholder="Nama Panggilan"
               class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 transition-all outline-none"
             />
           </div>
@@ -160,14 +171,14 @@
                 onclick={() => gender = 'MALE'}
                 class="flex-1 py-3 px-4 rounded-xl border-2 transition-all {gender === 'MALE' ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-slate-200 text-slate-600 hover:border-slate-300'}"
               >
-                👨 Laki-laki
+                Laki-laki
               </button>
               <button
                 type="button"
                 onclick={() => gender = 'FEMALE'}
                 class="flex-1 py-3 px-4 rounded-xl border-2 transition-all {gender === 'FEMALE' ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-slate-200 text-slate-600 hover:border-slate-300'}"
               >
-                👩 Perempuan
+                Perempuan
               </button>
             </div>
           </fieldset>
