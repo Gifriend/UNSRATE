@@ -1,12 +1,33 @@
 <script lang="ts">
   import { authClient } from '$lib/auth-client';
   import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
+  import { onMount } from 'svelte';
 
   const auth = useAuth();
 
   let isLoading = $state(false);
   let error = $state<string | null>(null);
 
+  onMount(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorParam = urlParams.get('error');
+    const errorMessage = urlParams.get('error_description');
+    
+    if (errorParam || errorMessage) {
+      const fullError = `${errorParam || ''} ${errorMessage || ''}`.toLowerCase();
+      if (
+        fullError.includes('invalid_domain') || 
+        fullError.includes('student.unsrat.ac.id') ||
+        fullError.includes('domain') ||
+        errorParam === 'auth_failed'
+      ) {
+        error = 'Hanya email @student.unsrat.ac.id yang diizinkan untuk login.';
+      } else {
+        error = errorMessage || 'Terjadi kesalahan saat login. Silakan coba lagi.';
+      }
+      window.history.replaceState({}, '', '/login');
+    }
+  });
 
   const handleGoogleLogin = async () => {
     try {
@@ -16,10 +37,9 @@
       await authClient.signIn.social({
         provider: 'google',
         callbackURL: '/explore',
+        errorCallbackURL: '/login?error=auth_failed',
       });
-
     } catch (err) {
-      console.error(err);
       error = 'Gagal login dengan Google. Silakan coba lagi.';
       isLoading = false;
     }
