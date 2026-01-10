@@ -44,7 +44,8 @@
         UNS<span class="text-transparent bg-clip-text bg-linear-to-r from-pink-500 to-rose-600">RATE</span>
       </h1>
       <p class="text-slate-500 mt-2 text-sm">
-        Cari jodoh se-almamater.<br/>Masuk pakai akun kampus lebih asik.
+        Cari jodoh se-almamater.<br/>
+        Masuk atau daftar pakai akun Google.
       </p>
     </div>
 

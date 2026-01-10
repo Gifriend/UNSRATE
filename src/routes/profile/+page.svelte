@@ -98,20 +98,20 @@
         </button> -->
         <h1 class="text-xl md:text-2xl font-bold text-grey-900">Profil Saya</h1>
         <!-- svelte-ignore a11y_consider_explicit_label -->
-        <button 
+        <!-- <button 
           onclick={handleLogout}
           class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6 text-grey-900 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-        </button>
+        </button> -->
       </div>
 
       <!-- Profile Card (Tinder Style) -->
       <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-4 md:mb-6">
         <!-- Photo -->
-        <div class="relative aspect-[4/3] md:aspect-[16/9] bg-linear-to-br from-brand-100 to-brand-300">
+        <div class="relative aspect-4/3 md:aspect-video bg-linear-to-br from-brand-100 to-brand-300">
           {#if currentPhoto}
             <img
               src={currentPhoto}

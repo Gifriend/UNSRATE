@@ -7,7 +7,6 @@ import { betterAuth } from "better-auth/minimal";
 import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:5173";
-const VALID_EMAIL_DOMAIN = "@student.unsrat.ac.id";
 
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
@@ -26,17 +25,6 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID ?? "",
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-      },
-    },
-    callbacks: {
-      async onSignIn({ user }: { user: { email?: string | null } }) {
-        if (!user.email) {
-          return { error: "Email tidak ditemukan" };
-        }
-        if (!user.email.toLowerCase().endsWith(VALID_EMAIL_DOMAIN)) {
-          return { error: "Gunakan email @student.unsrat.ac.id" };
-        }
-        return true;
       },
     },
     plugins: [
