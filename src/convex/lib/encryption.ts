@@ -1,9 +1,26 @@
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "unsrate-default-key-2026";
+const ENCRYPTION_KEY = "unsrate-default-key-2026";
 
 function getKeyBytes(key: string): number[] {
   const bytes: number[] = [];
   for (let i = 0; i < key.length; i++) {
     bytes.push(key.charCodeAt(i));
+  }
+  return bytes;
+}
+
+function uint8ArrayToBase64(bytes: number[]): string {
+  let binary = "";
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
+function base64ToUint8Array(base64: string): number[] {
+  const binary = atob(base64);
+  const bytes: number[] = [];
+  for (let i = 0; i < binary.length; i++) {
+    bytes.push(binary.charCodeAt(i));
   }
   return bytes;
 }
@@ -23,7 +40,7 @@ export function encrypt(text: string): string {
     encrypted.push(textBytes[i] ^ keyBytes[i % keyBytes.length]);
   }
   
-  return Buffer.from(encrypted).toString("base64");
+  return uint8ArrayToBase64(encrypted);
 }
 
 export function decrypt(encryptedText: string): string {
@@ -31,7 +48,7 @@ export function decrypt(encryptedText: string): string {
   
   try {
     const keyBytes = getKeyBytes(ENCRYPTION_KEY);
-    const encryptedBytes = Array.from(Buffer.from(encryptedText, "base64"));
+    const encryptedBytes = base64ToUint8Array(encryptedText);
     
     const decrypted: number[] = [];
     for (let i = 0; i < encryptedBytes.length; i++) {
