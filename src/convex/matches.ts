@@ -76,9 +76,17 @@ export const getMatches = query({
     const validMatches = normalizedMatches.filter(Boolean);
 
     if (args.sortBy === "name") {
-      validMatches.sort((a, b) => (a?.fullname ?? "").localeCompare(b?.fullname ?? ""));
+      validMatches.sort((a, b) => {
+        const nameCompare = (a?.fullname ?? "").localeCompare(b?.fullname ?? "");
+        if (nameCompare !== 0) return nameCompare;
+        return (a?._id.toString() ?? "").localeCompare(b?._id.toString() ?? "");
+      });
     } else {
-      validMatches.sort((a, b) => (b?.createdAt ?? 0) - (a?.createdAt ?? 0));
+      validMatches.sort((a, b) => {
+        const timeCompare = (b?.createdAt ?? 0) - (a?.createdAt ?? 0);
+        if (timeCompare !== 0) return timeCompare;
+        return (a?._id.toString() ?? "").localeCompare(b?._id.toString() ?? "");
+      });
     }
 
     return validMatches;

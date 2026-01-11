@@ -28,7 +28,7 @@
   let selectedMatchId = $state<Id<"matches"> | null>(null);
   let selectedMatchName = $state('');
   let isUnmatching = $state(false);
-  let hasMarkedSeen = $state(false);
+  let lastSeenMatchCount = $state(0);
 
   const filteredMatches = $derived(
     searchQuery.trim() === '' 
@@ -42,8 +42,9 @@
   const newMatchesCount = $derived(matches.filter(m => m?.isNew).length);
 
   $effect(() => {
-    if (matches.length > 0 && !hasMarkedSeen) {
-      hasMarkedSeen = true;
+    const currentCount = matches.length;
+    if (currentCount > 0 && currentCount !== lastSeenMatchCount) {
+      lastSeenMatchCount = currentCount;
       convex.mutation(api.matches.markMatchesAsSeen, {});
     }
   });

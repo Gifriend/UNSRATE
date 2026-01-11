@@ -78,6 +78,23 @@ export const getExploreProfiles = query({
       }
     }
 
+    const matchesAsProfile1 = await ctx.db
+      .query("matches")
+      .withIndex("by_profile1", (q) => q.eq("profile1Id", myProfile._id))
+      .collect();
+
+    const matchesAsProfile2 = await ctx.db
+      .query("matches")
+      .withIndex("by_profile2", (q) => q.eq("profile2Id", myProfile._id))
+      .collect();
+
+    for (const match of matchesAsProfile1) {
+      excludedIds.add(match.profile2Id as unknown as string);
+    }
+    for (const match of matchesAsProfile2) {
+      excludedIds.add(match.profile1Id as unknown as string);
+    }
+
     const targetGender = myProfile.prefGender === "ALL" 
       ? undefined 
       : myProfile.prefGender ?? (myProfile.gender === "MALE" ? "FEMALE" : "MALE");
@@ -102,7 +119,7 @@ export const getExploreProfiles = query({
     const maxAge = myProfile.prefMaxAge ?? 35;
 
     const interestDocs = await ctx.db.query("interests").collect();
-    const interestMap = new Map(interestDocs.map(i => [i._id, { _id: i._id, name: i.name, icon: i.icon ?? undefined }]));
+    const interestMap = new Map(interestDocs.map(i => [i._id.toString(), { _id: i._id, name: i.name, icon: i.icon ?? undefined }]));
 
     const scoredProfiles = allProfiles
       .filter(p => !excludedIds.has(p._id as unknown as string))
@@ -123,7 +140,7 @@ export const getExploreProfiles = query({
         );
 
         const interests = (p.interests ?? [])
-          .map(id => interestMap.get(id))
+          .map(id => interestMap.get(id.toString()))
           .filter(Boolean);
 
         return {
@@ -163,6 +180,10 @@ export const swipe = mutation({
       .unique();
 
     if (!myProfile) throw new Error("Profile not found");
+
+    if (myProfile._id === args.swipeeId) {
+      throw new Error("Cannot swipe on yourself");
+    }
 
     const existingSwipe = await ctx.db
       .query("swipes")
