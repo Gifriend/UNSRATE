@@ -49,8 +49,13 @@
     }
   });
 
-  function openChat(partnerId: Id<"profiles">) {
-    goto(`/chat?partner=${partnerId}`);
+  async function openChat(matchId: Id<"matches">) {
+    try {
+      const conversationId = await convex.mutation(api.conversations.getOrCreateConversation, { matchId });
+      goto(`/chat?c=${conversationId}`);
+    } catch (e) {
+      console.error("Failed to open chat", e);
+    }
   }
 
   function viewProfile(partnerId: Id<"profiles">) {
@@ -190,6 +195,9 @@
                       class="w-full h-full object-cover"
                     />
                   </div>
+                  {#if match.isOnline}
+                    <span class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                  {/if}
                 </button>
 
                 <div class="flex-1 min-w-0">
@@ -224,7 +232,7 @@
 
                 <div class="flex flex-col gap-2">
                   <button 
-                    onclick={() => openChat(match.partnerId)}
+                    onclick={() => openChat(match._id)}
                     class="p-2.5 bg-pink-500 text-white rounded-full hover:bg-pink-600 transition active:scale-95"
                     aria-label="Mulai chat"
                   >

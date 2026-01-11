@@ -8,8 +8,10 @@
 
   const auth = useAuth();
   const unseenMatchesQuery = useQuery(api.matches.getUnseenMatchCount, () => ({}));
+  const unreadMessagesQuery = useQuery(api.conversations.getTotalUnreadCount, () => ({}));
   
   const unseenCount = $derived(unseenMatchesQuery.data ?? 0);
+  const unreadMessages = $derived(unreadMessagesQuery.data ?? 0);
   const isActive = (path: string) => $page.url.pathname.startsWith(path);
   let isLoggingOut = $state(false);
   
@@ -39,8 +41,13 @@
       <span class="text-[10px] font-medium">Suka</span>
     </a>
 
-    <a href="/chat" class="flex flex-col items-center gap-1 transition-colors {isActive('/chat') ? 'text-primary' : 'text-grey-400'}">
+    <a href="/chat" class="relative flex flex-col items-center gap-1 transition-colors {isActive('/chat') ? 'text-primary' : 'text-grey-400'}">
       <MessageCircleIcon size={24} strokeWidth={isActive('/chat') ? 2.5 : 2} />
+      {#if unreadMessages > 0}
+        <span class="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center bg-pink-500 text-white text-[10px] font-bold rounded-full px-1">
+          {unreadMessages > 99 ? '99+' : unreadMessages}
+        </span>
+      {/if}
       <span class="text-[10px] font-medium">Pesan</span>
     </a>
 
