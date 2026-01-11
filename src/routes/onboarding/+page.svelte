@@ -143,7 +143,7 @@
           </div>
 
           <div>
-            <label for="nickname" class="block text-sm font-medium text-slate-700 mb-1">Nickname</label>
+            <label for="nickname" class="block text-sm font-medium text-slate-700 mb-1">Nama Panggilan</label>
             <input
               type="text"
               id="nickname"
@@ -164,7 +164,7 @@
           </div>
 
           <fieldset>
-            <legend class="block text-sm font-medium text-slate-700 mb-2">Gender</legend>
+            <legend class="block text-sm font-medium text-slate-700 mb-2">Jenis Kelamin</legend>
             <div class="flex gap-3">
               <button
                 type="button"

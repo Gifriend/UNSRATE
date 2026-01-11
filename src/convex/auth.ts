@@ -7,6 +7,7 @@ import { betterAuth } from "better-auth/minimal";
 import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL ?? "http://localhost:5173";
+const VALID_EMAIL_DOMAIN = "@student.unsrat.ac.id";
 
 export const authComponent = createClient<DataModel>(components.betterAuth);
 
@@ -25,6 +26,21 @@ export const createAuth = (ctx: GenericCtx<DataModel>) => {
       google: {
         clientId: process.env.GOOGLE_CLIENT_ID ?? "",
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      },
+    },
+    databaseHooks: {
+      user: {
+        create: {
+          before: async (user) => {
+            const email = user.email?.toLowerCase() ?? "";
+            
+            if (!email.endsWith(VALID_EMAIL_DOMAIN)) {
+              throw new Error(`INVALID_DOMAIN:${user.email}`);
+            }
+            
+            return { data: user };
+          },
+        },
       },
     },
     plugins: [
