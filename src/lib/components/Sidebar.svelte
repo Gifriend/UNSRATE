@@ -61,7 +61,7 @@
                  : 'text-grey-500 hover:bg-grey-100 hover:text-text-main'}"
       >
         <div class="relative group-hover:scale-110 transition-transform duration-200">
-             <svelte:component this={item.icon} size={26} strokeWidth={activePath.startsWith(item.href) ? 2.5 : 2} />
+             <item.icon size={26} strokeWidth={activePath.startsWith(item.href) ? 2.5 : 2} />
              
              {#if item.badge > 0}
                <span class="absolute -top-1 -right-1 min-w-4 h-4 flex items-center justify-center bg-pink-500 text-white text-[10px] font-bold rounded-full px-1">

@@ -14,6 +14,7 @@ import type * as http from "../http.js";
 import type * as interests from "../interests.js";
 import type * as matches from "../matches.js";
 import type * as profiles from "../profiles.js";
+import type * as storage from "../storage.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   interests: typeof interests;
   matches: typeof matches;
   profiles: typeof profiles;
+  storage: typeof storage;
 }>;
 
 /**

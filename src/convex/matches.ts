@@ -56,13 +56,25 @@ export const getMatches = query({
           .map(id => interestMap.get(id.toString()))
           .filter(Boolean);
 
+        const photoUrls = await Promise.all(
+          (partner.photos ?? []).map(async (photoId) => {
+            if (photoId.startsWith('http')) return photoId;
+            try {
+              const url = await ctx.storage.getUrl(photoId as any);
+              return url;
+            } catch {
+              return null;
+            }
+          })
+        );
+
         return {
           _id: match._id,
           partnerId: partner._id,
           fullname: partner.fullname,
           nickname: partner.nickname,
           age: calculateAge(partner.birthDate),
-          photos: partner.photos,
+          photos: photoUrls.filter(Boolean) as string[],
           fakultas: partner.fakultas,
           prodi: partner.prodi,
           bio: partner.bio,

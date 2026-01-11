@@ -121,47 +121,61 @@ export const getExploreProfiles = query({
     const interestDocs = await ctx.db.query("interests").collect();
     const interestMap = new Map(interestDocs.map(i => [i._id.toString(), { _id: i._id, name: i.name, icon: i.icon ?? undefined }]));
 
-    const scoredProfiles = allProfiles
-      .filter(p => !excludedIds.has(p._id as unknown as string))
-      .map(p => {
-        const age = calculateAge(p.birthDate);
-        if (age < minAge || age > maxAge) return null;
+    const scoredProfiles = await Promise.all(
+      allProfiles
+        .filter(p => !excludedIds.has(p._id as unknown as string))
+        .map(async (p) => {
+          const age = calculateAge(p.birthDate);
+          if (age < minAge || age > maxAge) return null;
 
-        const myInterestIds = myInterests.map(id => id.toString());
-        const pInterestIds = (p.interests ?? []).map(id => id.toString());
+          const myInterestIds = myInterests.map(id => id.toString());
+          const pInterestIds = (p.interests ?? []).map(id => id.toString());
 
-        const matchScore = calculateMatchScore(
-          myInterestIds,
-          pInterestIds,
-          myProfile.fakultas,
-          p.fakultas,
-          myProfile.prodi,
-          p.prodi
-        );
+          const matchScore = calculateMatchScore(
+            myInterestIds,
+            pInterestIds,
+            myProfile.fakultas,
+            p.fakultas,
+            myProfile.prodi,
+            p.prodi
+          );
 
-        const interests = (p.interests ?? [])
-          .map(id => interestMap.get(id.toString()))
-          .filter(Boolean);
+          const interests = (p.interests ?? [])
+            .map(id => interestMap.get(id.toString()))
+            .filter(Boolean);
 
-        return {
-          _id: p._id,
-          fullname: p.fullname,
-          nickname: p.nickname,
-          age,
-          bio: p.bio,
-          gender: p.gender,
-          fakultas: p.fakultas,
-          prodi: p.prodi,
-          photos: p.photos,
-          interests,
-          matchScore,
-        };
-      })
+          const photoUrls = await Promise.all(
+            (p.photos ?? []).map(async (photoId) => {
+              if (photoId.startsWith('http')) return photoId;
+              try {
+                const url = await ctx.storage.getUrl(photoId as any);
+                return url;
+              } catch {
+                return null;
+              }
+            })
+          );
+
+          return {
+            _id: p._id,
+            fullname: p.fullname,
+            nickname: p.nickname,
+            age,
+            bio: p.bio,
+            gender: p.gender,
+            fakultas: p.fakultas,
+            prodi: p.prodi,
+            photos: photoUrls.filter(Boolean) as string[],
+            interests,
+            matchScore,
+          };
+        })
+    );
+
+    return scoredProfiles
       .filter(Boolean)
       .sort((a, b) => (b?.matchScore ?? 0) - (a?.matchScore ?? 0))
       .slice(0, limit);
-
-    return scoredProfiles;
   },
 });
 
@@ -238,12 +252,28 @@ export const swipe = mutation({
           });
 
           const matchedProfile = await ctx.db.get(args.swipeeId);
+          
+          let matchedPhotoUrls: string[] = [];
+          if (matchedProfile?.photos) {
+            matchedPhotoUrls = (await Promise.all(
+              matchedProfile.photos.map(async (photoId) => {
+                if (photoId.startsWith('http')) return photoId;
+                try {
+                  const url = await ctx.storage.getUrl(photoId as any);
+                  return url;
+                } catch {
+                  return null;
+                }
+              })
+            )).filter(Boolean) as string[];
+          }
+
           match = {
             _id: matchId,
             matchedProfile: matchedProfile ? {
               _id: matchedProfile._id,
               fullname: matchedProfile.fullname,
-              photos: matchedProfile.photos,
+              photos: matchedPhotoUrls,
             } : null,
           };
         }
