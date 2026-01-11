@@ -4,13 +4,12 @@
     ZapIcon, 
     HeartIcon, 
     MessageCircleIcon, 
-    UserIcon, 
-    LogOutIcon,
+    UserIcon,
     SettingsIcon 
   } from 'lucide-svelte';
-  import { logout } from '$lib/stores/auth';
   import { useQuery } from 'convex-svelte';
   import { api } from '../../convex/_generated/api';
+  import * as m from '$lib/paraglide/messages';
 
   const unseenMatchesQuery = useQuery(api.matches.getUnseenMatchCount, () => ({}));
   const unseenCount = $derived(unseenMatchesQuery.data ?? 0);
@@ -19,20 +18,11 @@
   const unreadMessages = $derived(unreadMessagesQuery.data ?? 0);
 
   const menuItems = $derived([
-    { icon: ZapIcon, label: 'Jelajahi', href: '/explore', badge: 0 },
-    { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches', badge: unseenCount },
-    { icon: MessageCircleIcon, label: 'Pesan', href: '/chat', badge: unreadMessages },
-    { icon: UserIcon, label: 'Profil', href: '/profile', badge: 0 },
+    { icon: ZapIcon, label: m.nav_explore(), href: '/explore', badge: 0 },
+    { icon: HeartIcon, label: m.nav_matches(), href: '/matches', badge: unseenCount },
+    { icon: MessageCircleIcon, label: m.nav_messages(), href: '/chat', badge: unreadMessages },
+    { icon: UserIcon, label: m.nav_profile(), href: '/profile', badge: 0 },
   ]);
-
-  let isLoggingOut = $state(false);
-
-  async function handleLogout() {
-    if (isLoggingOut) return;
-    isLoggingOut = true;
-    await logout();
-    isLoggingOut = false;
-  }
 
   const activePath = $derived($page.url.pathname);
 </script>
@@ -89,25 +79,16 @@
   </nav>
 
   <div class="p-4 mt-auto space-y-1">
-    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-text-main transition-colors text-left group">
-      <SettingsIcon size={26} />
-      <span class="hidden {activePath.startsWith('/chat') ? 'lg:hidden' : 'lg:block'} text-[15px]">Pengaturan</span>
-    </button>
-    <button 
-      onclick={handleLogout}
-      disabled={isLoggingOut}
-      class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group disabled:opacity-50"
+    <a 
+      href="/settings"
+      class="w-full flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group
+             {activePath.startsWith('/settings') 
+               ? 'bg-primary/10 text-primary font-semibold' 
+               : 'text-gray-500 hover:bg-gray-100 hover:text-text-main'}"
     >
-      {#if isLoggingOut}
-        <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-        </svg>
-      {:else}
-        <LogOutIcon size={26} />
-      {/if}
-      <span class="hidden {activePath.startsWith('/chat') ? 'lg:hidden' : 'lg:block'} text-[15px]">Keluar</span>
-    </button>
+      <SettingsIcon size={26} strokeWidth={activePath.startsWith('/settings') ? 2.5 : 2} />
+      <span class="hidden {activePath.startsWith('/chat') ? 'lg:hidden' : 'lg:block'} text-[15px]">{m.nav_settings()}</span>
+    </a>
   </div>
 
 </aside>

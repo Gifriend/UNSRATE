@@ -10,6 +10,7 @@
   import BottomNav from '$lib/components/BottomNav.svelte';
   import SkeletonCard from '$lib/components/SkeletonCard.svelte';
   import NewCard from '$lib/components/NewCard.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   const convex = useConvexClient();
   
@@ -58,7 +59,7 @@
         }
       } catch (e) {
         console.error("Swipe failed", e);
-        swipeError = "Gagal menyimpan. Coba lagi.";
+        swipeError = m.explore_error();
         currentIndex = previousIndex;
       } finally {
         isSwiping = false;
@@ -110,13 +111,13 @@
       <div class="flex items-center justify-center gap-2 mb-2">
         <PartyPopperIcon class="w-6 h-6 text-yellow-500" />
         <h2 class="text-2xl font-bold bg-linear-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-          It's a Match!
+          {m.match_title()}
         </h2>
         <PartyPopperIcon class="w-6 h-6 text-yellow-500 scale-x-[-1]" />
       </div>
       
       <p class="text-gray-600 mb-6">
-        Kamu dan <span class="font-semibold text-pink-600">{matchedProfile.fullname}</span> saling menyukai!
+        {m.match_message({ name: matchedProfile.fullname })}
       </p>
       
       <div class="flex gap-3">
@@ -124,13 +125,13 @@
           onclick={closeMatchModal}
           class="flex-1 py-3 px-4 border-2 border-gray-200 rounded-full font-semibold text-gray-600 hover:bg-gray-50 transition"
         >
-          Nanti Dulu
+          {m.match_later()}
         </button>
         <a 
           href="/chat"
           class="flex-1 py-3 px-4 bg-linear-to-r from-pink-500 to-rose-500 rounded-full font-semibold text-white hover:opacity-90 transition text-center"
         >
-          Kirim Pesan
+          {m.match_send_message()}
         </a>
       </div>
     </div>
@@ -154,16 +155,16 @@
         <div class="p-6 bg-linear-to-br from-pink-50 to-rose-50 rounded-full shadow-lg mb-6">
           <SearchXIcon class="w-16 h-16 text-pink-300" />
         </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Belum Ada Orang Baru</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">{m.explore_no_profiles()}</h2>
         <p class="text-gray-500 mb-8 max-w-xs">
-          Sepertinya kamu sudah melihat semua orang untuk saat ini. Coba lagi nanti!
+          {m.explore_no_profiles_desc()}
         </p>
         <button 
           onclick={handleRefresh}
           class="flex items-center gap-2 bg-linear-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition font-semibold"
         >
           <RefreshCwIcon class="w-5 h-5" />
-          Refresh
+          {m.common_refresh()}
         </button>
       </div>
 
@@ -185,11 +186,11 @@
             
             {#if swipeDirection === 'right'}
               <div class="absolute top-8 left-8 border-4 border-green-500 text-green-500 font-bold text-4xl px-4 py-2 rounded transform -rotate-12 bg-black/20 backdrop-blur-sm z-30">
-                LIKE
+                {m.explore_like()}
               </div>
             {:else if swipeDirection === 'left'}
               <div class="absolute top-8 right-8 border-4 border-red-500 text-red-500 font-bold text-4xl px-4 py-2 rounded transform rotate-12 bg-black/20 backdrop-blur-sm z-30">
-                NOPE
+                {m.explore_nope()}
               </div>
             {/if}
           </div>
@@ -209,7 +210,7 @@
       {/if}
 
       <p class="text-center text-sm text-gray-400 mt-2">
-        {remaining} profil tersisa
+        {m.explore_profiles_remaining({ count: remaining })}
       </p>
     {/if}
   </main>

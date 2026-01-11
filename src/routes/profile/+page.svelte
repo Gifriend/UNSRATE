@@ -3,6 +3,7 @@
   import { api } from '$convex/_generated/api';
   import { goto } from '$app/navigation';
   import { logout } from '$lib/stores/auth';
+  import * as m from '$lib/paraglide/messages';
 
   const client = useConvexClient();
   const myProfile = useQuery(api.profiles.getMyProfile, {});
@@ -30,7 +31,7 @@
 
   async function saveEdit() {
     if (!editBio.trim()) {
-      error = 'Bio tidak boleh kosong';
+      error = m.profile_bio_empty();
       return;
     }
 
@@ -45,7 +46,7 @@
       isEditMode = false;
     } catch (err) {
       console.error('Failed to update profile:', err);
-      error = 'Gagal menyimpan perubahan';
+      error = m.profile_save_error();
     } finally {
       isSubmitting = false;
     }
@@ -79,7 +80,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
       </svg>
-      <p class="text-grey-500">Memuat profil...</p>
+      <p class="text-grey-500">{m.profile_loading()}</p>
     </div>
   </div>
 {:else if profile}
@@ -87,25 +88,7 @@
     <div class="max-w-2xl mx-auto px-4 sm:px-6 py-4 md:py-8">
       <!-- Header -->
       <div class="flex items-center justify-between mb-4 md:mb-6">
-        <!-- svelte-ignore a11y_consider_explicit_label -->
-        <!-- <button 
-          onclick={() => goto('/explore')}
-          class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-grey-50 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6 text-grey-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button> -->
-        <h1 class="text-xl md:text-2xl font-bold text-grey-900">Profil Saya</h1>
-        <!-- svelte-ignore a11y_consider_explicit_label -->
-        <!-- <button 
-          onclick={handleLogout}
-          class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white shadow-md flex items-center justify-center hover:bg-red-50 transition-colors group"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 md:w-6 md:h-6 text-grey-900 group-hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-        </button> -->
+        <h1 class="text-xl md:text-2xl font-bold text-grey-900">{m.profile_my_profile()}</h1>
       </div>
 
       <!-- Profile Card (Tinder Style) -->
@@ -124,7 +107,7 @@
                 <div class="w-20 h-20 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center mx-auto mb-4">
                   <span class="text-3xl md:text-5xl font-bold">{profile.nickname[0]}</span>
                 </div>
-                <p class="text-base md:text-lg">Belum ada foto</p>
+                <p class="text-base md:text-lg">{m.profile_no_photo()}</p>
               </div>
             </div>
           {/if}
@@ -152,13 +135,13 @@
           <!-- Bio Section -->
           <div>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-xs md:text-sm font-semibold text-grey-900 uppercase tracking-wide">Tentang Saya</h3>
+              <h3 class="text-xs md:text-sm font-semibold text-grey-900 uppercase tracking-wide">{m.profile_about_me()}</h3>
               {#if !isEditMode}
                 <button
                   onclick={startEdit}
                   class="text-brand-300 hover:text-brand-500 transition-colors text-xs md:text-sm font-medium"
                 >
-                  Edit
+                  {m.profile_edit()}
                 </button>
               {/if}
             </div>
@@ -169,9 +152,9 @@
                   rows="4"
                   maxlength="500"
                   class="w-full px-4 py-3 rounded-xl border-2 border-grey-400/30 focus:border-brand-300 focus:ring-2 focus:ring-brand-100 transition-all outline-none resize-none text-grey-900"
-                  placeholder="Ceritakan tentang dirimu..."
+                  placeholder="{m.profile_bio_placeholder()}"
                 ></textarea>
-                <p class="text-xs text-grey-400 text-right">{editBio.length}/500</p>
+                <p class="text-xs text-grey-400 text-right">{m.profile_bio_limit({ count: editBio.length })}</p>
                 
                 {#if error}
                   <div class="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-xl">
@@ -185,14 +168,14 @@
                     disabled={isSubmitting}
                     class="flex-1 py-2.5 md:py-3 px-3 md:px-4 text-sm md:text-base rounded-xl border-2 border-grey-400/30 text-grey-900 font-semibold hover:bg-grey-50 transition-all disabled:opacity-50"
                   >
-                    Batal
+                    {m.profile_cancel()}
                   </button>
                   <button
                     onclick={saveEdit}
                     disabled={isSubmitting || !editBio.trim()}
                     class="flex-1 py-2.5 md:py-3 px-3 md:px-4 text-sm md:text-base rounded-xl bg-gradient-brand text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan'}
+                    {isSubmitting ? m.profile_saving() : m.profile_save()}
                   </button>
                 </div>
               </div>
