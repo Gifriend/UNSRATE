@@ -233,55 +233,6 @@ export const swipe = mutation({
   },
 });
 
-export const getMatches = query({
-  args: {},
-  handler: async (ctx) => {
-    const authUser = await authComponent.getAuthUser(ctx);
-    if (!authUser) return [];
-
-    const myProfile = await ctx.db
-      .query("profiles")
-      .withIndex("by_userId", (q) => q.eq("userId", authUser._id))
-      .unique();
-
-    if (!myProfile) return [];
-
-    const matchesAsProfile1 = await ctx.db
-      .query("matches")
-      .withIndex("by_profile1", (q) => q.eq("profile1Id", myProfile._id))
-      .collect();
-
-    const matchesAsProfile2 = await ctx.db
-      .query("matches")
-      .withIndex("by_profile2", (q) => q.eq("profile2Id", myProfile._id))
-      .collect();
-
-    const allMatches = [...matchesAsProfile1, ...matchesAsProfile2];
-    
-    const matchProfiles = await Promise.all(
-      allMatches.map(async (m) => {
-        const otherProfileId = m.profile1Id === myProfile._id ? m.profile2Id : m.profile1Id;
-        const profile = await ctx.db.get(otherProfileId);
-        if (!profile) return null;
-        
-        return {
-          matchId: m._id,
-          matchedAt: m.createdAt,
-          profile: {
-            _id: profile._id,
-            fullname: profile.fullname,
-            nickname: profile.nickname,
-            photos: profile.photos,
-            bio: profile.bio,
-          },
-        };
-      })
-    );
-
-    return matchProfiles.filter(Boolean).sort((a, b) => (b?.matchedAt ?? 0) - (a?.matchedAt ?? 0));
-  },
-});
-
 export const updatePreferences = mutation({
   args: {
     prefMinAge: v.optional(v.number()),

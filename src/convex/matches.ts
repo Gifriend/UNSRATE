@@ -182,6 +182,25 @@ export const unmatch = mutation({
     const isMyMatch = match.profile1Id === myProfile._id || match.profile2Id === myProfile._id;
     if (!isMyMatch) throw new Error("Unauthorized");
 
+    const partnerId = match.profile1Id === myProfile._id ? match.profile2Id : match.profile1Id;
+
+    const mySwipe = await ctx.db
+      .query("swipes")
+      .withIndex("by_swiper_swipee", (q) => 
+        q.eq("swiperId", myProfile._id).eq("swipeeId", partnerId)
+      )
+      .unique();
+
+    const theirSwipe = await ctx.db
+      .query("swipes")
+      .withIndex("by_swiper_swipee", (q) => 
+        q.eq("swiperId", partnerId).eq("swipeeId", myProfile._id)
+      )
+      .unique();
+
+    if (mySwipe) await ctx.db.delete(mySwipe._id);
+    if (theirSwipe) await ctx.db.delete(theirSwipe._id);
+
     await ctx.db.delete(args.matchId);
 
     return { success: true };

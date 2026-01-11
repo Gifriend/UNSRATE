@@ -28,6 +28,7 @@
   let selectedMatchId = $state<Id<"matches"> | null>(null);
   let selectedMatchName = $state('');
   let isUnmatching = $state(false);
+  let hasMarkedSeen = $state(false);
 
   const filteredMatches = $derived(
     searchQuery.trim() === '' 
@@ -41,7 +42,8 @@
   const newMatchesCount = $derived(matches.filter(m => m?.isNew).length);
 
   $effect(() => {
-    if (matches.length > 0) {
+    if (matches.length > 0 && !hasMarkedSeen) {
+      hasMarkedSeen = true;
       convex.mutation(api.matches.markMatchesAsSeen, {});
     }
   });
@@ -178,7 +180,7 @@
               <div class="flex items-center gap-4">
                 <button 
                   onclick={() => viewProfile(match.partnerId)}
-                  class="relative flex-shrink-0"
+                  class="relative shrink-0"
                 >
                   <div class="w-16 h-16 rounded-full overflow-hidden ring-2 ring-pink-200 group-hover:ring-pink-400 transition">
                     <img 

@@ -15,12 +15,12 @@
   const unseenMatchesQuery = useQuery(api.matches.getUnseenMatchCount, () => ({}));
   const unseenCount = $derived(unseenMatchesQuery.data ?? 0);
 
-  const menuItems = [
+  const menuItems = $derived([
     { icon: ZapIcon, label: 'Jelajahi', href: '/explore', badge: 0 },
     { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches', badge: unseenCount },
     { icon: MessageCircleIcon, label: 'Pesan', href: '/chat', badge: 0 },
     { icon: UserIcon, label: 'Profil', href: '/profile', badge: 0 },
-  ];
+  ]);
 
   let isLoggingOut = $state(false);
 
