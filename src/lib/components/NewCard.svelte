@@ -1,13 +1,14 @@
 <script lang="ts">
   import { MapPinIcon, InfoIcon } from 'lucide-svelte';
-  import type { Profile } from '$lib/types/explore';
+  import type { ExploreProfile } from '$lib/types/explore';
 
-  export let profile: Profile;
+  let { profile }: { profile: ExploreProfile } = $props();
 
-  // Fallback avatar jika tidak ada foto
-  $: mainPhoto = profile.photos && profile.photos.length > 0 
-    ? profile.photos[0] 
-    : `https://ui-avatars.com/api/?name=${profile.fullname}&size=500&background=random`;
+  const mainPhoto = $derived(
+    profile.photos && profile.photos.length > 0 
+      ? profile.photos[0] 
+      : `https://ui-avatars.com/api/?name=${profile.fullname}&size=500&background=random`
+  );
 </script>
 
 <div class="relative w-full aspect-3/4 bg-white rounded-3xl overflow-hidden shadow-xl select-none group">
@@ -25,7 +26,7 @@
       <div class="flex flex-col">
         <h2 class="text-3xl font-bold tracking-tight flex items-baseline gap-2 text-shadow">
           {profile.fullname}
-          <span class="text-xl font-normal opacity-90">{profile.age || ''}</span>
+          <span class="text-xl font-normal opacity-90">{profile.age}</span>
         </h2>
         
         {#if profile.fakultas || profile.prodi}
@@ -34,10 +35,10 @@
           </p>
         {/if}
 
-        {#if profile.location}
-          <div class="flex items-center text-xs font-medium text-gray-300 mt-1">
-            <MapPinIcon class="w-3 h-3 mr-1" />
-            {profile.location}
+        {#if profile.matchScore}
+          <div class="flex items-center text-xs font-medium text-pink-300 mt-1">
+            <span class="mr-1">💕</span>
+            {profile.matchScore}% Match
           </div>
         {/if}
       </div>
@@ -59,7 +60,7 @@
       <div class="flex flex-wrap gap-2 mt-4">
         {#each profile.interests.slice(0, 3) as interest}
           <span class="px-3 py-1 bg-white/10 backdrop-blur-sm border border-white/10 rounded-full text-xs font-semibold text-white/90">
-            {interest.name}
+            {interest.icon ?? ''} {interest.name}
           </span>
         {/each}
         {#if profile.interests.length > 3}
