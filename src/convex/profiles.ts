@@ -13,7 +13,24 @@ export const getMyProfile = query({
       .withIndex("by_userId", (q) => q.eq("userId", authUser._id))
       .unique();
 
-    return profile;
+    if (!profile) return null;
+
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return {
+      ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
+    };
   },
 });
 
@@ -25,7 +42,24 @@ export const getProfileByUserId = query({
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .unique();
 
-    return profile;
+    if (!profile) return null;
+
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return {
+      ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
+    };
   },
 });
 
