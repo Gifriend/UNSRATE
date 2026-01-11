@@ -42,6 +42,18 @@ export const getProfileById = query({
       .map(id => interestMap.get(id.toString()))
       .filter(Boolean);
 
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
     const birth = new Date(profile.birthDate);
     const today = new Date();
     let age = today.getFullYear() - birth.getFullYear();
@@ -52,6 +64,7 @@ export const getProfileById = query({
 
     return {
       ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
       age,
       interests,
     };
