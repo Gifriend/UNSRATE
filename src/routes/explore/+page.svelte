@@ -115,10 +115,10 @@
 
 <div class="min-h-screen  flex flex-col relative overflow-hidden">
   
-  <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
+  <div class="fixed sm:top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
   <div class="fixed bottom-[10%] right-[-10%] w-[50%] h-[40%] bg-purple-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
 
-  <main class="flex-1 flex flex-col justify-center px-4 max-w-md mx-auto w-full relative z-10 pt-4">
+  <main class="flex-1 flex flex-col justify-center px-4 max-w-md mx-auto w-full relative z-10 ">
     
     {#if isLoading}
       <SkeletonCard />

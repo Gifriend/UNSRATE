@@ -16,25 +16,23 @@
   }
 </script>
 
-<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-grey-100 py-3 pb-safe z-50 transition-transform duration-300">
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-300 py-3 pb-safe z-50 transition-transform duration-300">
   <div class="flex justify-around items-center max-w-md mx-auto">
     
-    <a href="/explore" class="flex flex-col items-center gap-1 transition-colors {isActive('/explore') ? 'text-primary' : 'text-grey-400'}">
+    <a href="/explore" class="flex flex-col items-center gap-1 transition-colors {isActive('/explore') ? 'text-primary' : 'text-gray-400'}">
       <ZapIcon size={24} strokeWidth={isActive('/explore') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Jelajahi</span>
     </a>
-
-    <a href="/matches" class="flex flex-col items-center gap-1 transition-colors {isActive('/matches') ? 'text-primary' : 'text-grey-400'}">
+    <!-- <a href="/matches" class="flex flex-col items-center gap-1 transition-colors {isActive('/matches') ? 'text-primary' : 'text-gray-400'}">
       <HeartIcon size={24} strokeWidth={isActive('/matches') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Suka</span>
-    </a>
-
-    <a href="/chat" class="flex flex-col items-center gap-1 transition-colors {isActive('/chat') ? 'text-primary' : 'text-grey-400'}">
+    </a> -->
+    <a href="/chat" class="flex flex-col items-center gap-1 transition-colors {isActive('/chat') ? 'text-primary' : 'text-gray-400'}">
       <MessageCircleIcon size={24} strokeWidth={isActive('/chat') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Pesan</span>
     </a>
 
-    <a href="/profile" class="flex flex-col items-center gap-1 transition-colors {isActive('/profile') ? 'text-primary' : 'text-grey-400'}">
+    <a href="/profile" class="flex flex-col items-center gap-1 transition-colors {isActive('/profile') ? 'text-primary' : 'text-gray-400'}">
       <UserIcon size={24} strokeWidth={isActive('/profile') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Profil</span>
     </a>

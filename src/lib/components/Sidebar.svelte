@@ -11,7 +11,7 @@
 
   const menuItems = [
     { icon: ZapIcon, label: 'Jelajahi', href: '/explore' },
-    { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches' },
+    // { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches' },
     { icon: MessageCircleIcon, label: 'Pesan', href: '/chat' },
     { icon: UserIcon, label: 'Profil', href: '/profile' },
   ];
@@ -19,7 +19,7 @@
   $: activePath = $page.url.pathname;
 </script>
 
-<aside class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-18 lg:w-64 bg-white border-r border-grey-100/10 z-50 transition-all duration-300">
+<aside class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-18 lg:w-64 bg-white border-r border-gray-300 z-50 transition-all duration-300">
   
   <div class="h-20 flex items-center px-4 lg:px-6 mb-6 mt-2">
     <a href="/explore" class="hidden lg:block transition-opacity hover:opacity-80">
@@ -43,7 +43,7 @@
         class="flex items-center gap-4 p-3 rounded-xl transition-all duration-200 group relative
                {activePath.startsWith(item.href) 
                  ? 'bg-primary/10 text-primary font-semibold' 
-                 : 'text-grey-500 hover:bg-grey-100 hover:text-text-main'}"
+                 : 'text-gray-500 hover:bg-gray-100 hover:text-text-main'}"
       >
         <div class="relative group-hover:scale-110 transition-transform duration-200">
              <svelte:component this={item.icon} size={26} strokeWidth={activePath.startsWith(item.href) ? 2.5 : 2} />
@@ -59,11 +59,11 @@
   </nav>
 
   <div class="p-4 mt-auto space-y-1">
-    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-grey-100 hover:text-text-main transition-colors text-left group">
+    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-gray-500 hover:bg-gray-100 hover:text-text-main transition-colors text-left group">
       <SettingsIcon size={26} />
       <span class="hidden lg:block text-[15px]">Pengaturan</span>
     </button>
-    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group">
+    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group">
       <LogOutIcon size={26} />
       <span class="hidden lg:block text-[15px]">Keluar</span>
     </button>
