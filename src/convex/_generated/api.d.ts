@@ -9,10 +9,14 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as conversations from "../conversations.js";
 import type * as explore from "../explore.js";
 import type * as http from "../http.js";
 import type * as interests from "../interests.js";
+import type * as lib_encryption from "../lib/encryption.js";
 import type * as matches from "../matches.js";
+import type * as messages from "../messages.js";
+import type * as presence from "../presence.js";
 import type * as profiles from "../profiles.js";
 import type * as storage from "../storage.js";
 
@@ -24,10 +28,14 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  conversations: typeof conversations;
   explore: typeof explore;
   http: typeof http;
   interests: typeof interests;
+  "lib/encryption": typeof lib_encryption;
   matches: typeof matches;
+  messages: typeof messages;
+  presence: typeof presence;
   profiles: typeof profiles;
   storage: typeof storage;
 }>;
