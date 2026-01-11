@@ -3,8 +3,13 @@
   import { page } from '$app/stores';
   import { logout } from '$lib/stores/auth';
   import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
+  import { useQuery } from 'convex-svelte';
+  import { api } from '../../convex/_generated/api';
 
   const auth = useAuth();
+  const unseenMatchesQuery = useQuery(api.matches.getUnseenMatchCount, () => ({}));
+  
+  const unseenCount = $derived(unseenMatchesQuery.data ?? 0);
   const isActive = (path: string) => $page.url.pathname.startsWith(path);
   let isLoggingOut = $state(false);
   
@@ -23,8 +28,14 @@
       <ZapIcon size={24} strokeWidth={isActive('/explore') ? 2.5 : 2} />
       <span class="text-[10px] font-medium">Jelajahi</span>
     </a>
-    <!-- <a href="/matches" class="flex flex-col items-center gap-1 transition-colors {isActive('/matches') ? 'text-primary' : 'text-gray-400'}">
+
+    <a href="/matches" class="relative flex flex-col items-center gap-1 transition-colors {isActive('/matches') ? 'text-primary' : 'text-grey-400'}">
       <HeartIcon size={24} strokeWidth={isActive('/matches') ? 2.5 : 2} />
+      {#if unseenCount > 0}
+        <span class="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center bg-pink-500 text-white text-[10px] font-bold rounded-full px-1">
+          {unseenCount > 99 ? '99+' : unseenCount}
+        </span>
+      {/if}
       <span class="text-[10px] font-medium">Suka</span>
     </a> -->
     <a href="/chat" class="flex flex-col items-center gap-1 transition-colors {isActive('/chat') ? 'text-primary' : 'text-gray-400'}">

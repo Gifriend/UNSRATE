@@ -1,148 +1,181 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { fly, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { ZapIcon } from 'lucide-svelte';
-  import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
-  
-  // Components
+  import { SearchXIcon, HeartIcon, RefreshCwIcon, PartyPopperIcon, Loader2Icon } from 'lucide-svelte';
+  import { useConvexClient, useQuery } from 'convex-svelte';
+  import { api } from '../../convex/_generated/api';
+  import type { ExploreProfile, MatchResult } from '$lib/types/explore';
+  import type { Id } from '../../convex/_generated/dataModel';
   import ActionButtons from '$lib/components/ActionButtons.svelte';
   import BottomNav from '$lib/components/BottomNav.svelte';
   import SkeletonCard from '$lib/components/SkeletonCard.svelte';
   import NewCard from '$lib/components/NewCard.svelte';
-  
-  // Types
-  import type { Profile, ExploreResponse } from '$lib/types/explore';
-  
-  // MOCK DATA (Import data yang baru kita buat)
-  import { MOCK_PROFILES } from '$lib/data/dummyProfile';
 
-  const auth = useAuth();
+  const convex = useConvexClient();
+  
+  let fetchKey = $state(0);
+  const profilesQuery = useQuery(api.explore.getExploreProfiles, () => ({ limit: 20, _key: fetchKey }));
+
   let currentIndex = $state(0);
-  let profiles = $state<Profile[]>([]);
-  let isLoading = $state(true);
-  let error = $state<string | null>(null);
-  let isFetchingMore = $state(false);
-  let swipeDirection = $state<'left' | 'right' | null>(null); 
+  let swipeDirection = $state<'left' | 'right' | null>(null);
+  let isSwiping = $state(false);
+  let showMatchModal = $state(false);
+  let matchedProfile = $state<MatchResult['matchedProfile'] | null>(null);
+  let swipeError = $state<string | null>(null);
 
-  const currentProfile = $derived(profiles[currentIndex]);
-  const remaining = $derived(profiles.length - currentIndex);
-
-  // --- MOCK API HANDLER ---
-  const fetchProfiles = async (isLoadMore = false) => {
-    if (isLoadMore && isFetchingMore) return;
-    
-    try {
-      if (!isLoadMore) isLoading = true;
-      else isFetchingMore = true;
-
-      // SIMULASI API DELAY (1.5 detik)
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Menggunakan data dummy lokal
-      const newProfiles = MOCK_PROFILES;
-
-      if (!isLoadMore) {
-        profiles = newProfiles;
-        currentIndex = 0;
-      } else if (newProfiles.length > 0) {
-        // Untuk demo load more, kita duplicate data mock agar list bertambah
-        const moreProfiles = newProfiles.map(p => ({
-            ...p, 
-            id: p.id + Math.random(), // id unik palsu
-            name: p.name + ' (Copy)' 
-        }));
-        profiles = [...profiles, ...moreProfiles];
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      if (!isLoadMore) error = "Gagal memuat profil.";
-    } finally {
-      isLoading = false;
-      isFetchingMore = false;
-    }
-  };
+  const profiles = $derived(profilesQuery.data as ExploreProfile[] | undefined);
+  const isLoading = $derived(profilesQuery.isLoading);
+  const currentProfile = $derived(profiles?.[currentIndex]);
+  const remaining = $derived((profiles?.length ?? 0) - currentIndex);
 
   const handleAction = async (action: 'LIKE' | 'DISLIKE') => {
-    if (!currentProfile) return;
+    if (!currentProfile || isSwiping) return;
 
-    // 1. Visual Animation
+    isSwiping = true;
     swipeDirection = action === 'LIKE' ? 'right' : 'left';
-    // const profileId = currentProfile.id; // Tidak dipakai di mock tapi disimpan untuk nanti
+    const profileId = currentProfile._id;
+    const previousIndex = currentIndex;
 
-    // 2. Logic Delay & Mock API Call
     setTimeout(async () => {
-      // Pindahkan index dulu agar UI responsif
       currentIndex++;
       swipeDirection = null;
 
-      // 3. Simulasi API Call Backend (Optimistic UI)
       try {
-        // console.log(`Simulating API call: ${action} on ${profileId}`);
-        // await api.post("explores", ...); <-- DIBUANG DULU
-        
-        // Simulasi response sukses dari backend
-        const mockResponse: ExploreResponse = {
-            statusCode: 201,
-            message: "Success",
-            swipe: {
-                id: "swipe_123",
-                swiperUserId: "me",
-                swipedUserId: currentProfile.id,
-                action: action,
-                createdAt: new Date().toISOString()
-            }
-            // Tambahkan object match di sini jika ingin mengetes UI Match
-        };
+        const result = await convex.mutation(api.explore.swipe, {
+          swipeeId: profileId as Id<"profiles">,
+          action,
+        });
 
+        swipeError = null;
+
+        if (result.match) {
+          matchedProfile = result.match.matchedProfile;
+          showMatchModal = true;
+        }
+
+        if (remaining <= 3) {
+          handleRefresh();
+        }
       } catch (e) {
         console.error("Swipe failed", e);
+        swipeError = "Gagal menyimpan. Coba lagi.";
+        currentIndex = previousIndex;
+      } finally {
+        isSwiping = false;
       }
-    }, 250); // Waktu animasi swipe selesai
+    }, 250);
   };
 
-  // --- LIFECYCLE ---
-  onMount(() => {
-    fetchProfiles();
-  });
+  const handleRefresh = () => {
+    currentIndex = 0;
+    fetchKey++;
+  };
 
-  $effect(() => {
-    if (remaining <= 1 && remaining > 0 && !isFetchingMore && !isLoading) {
-      fetchProfiles(true);
-    }
-  });
+  const closeMatchModal = () => {
+    showMatchModal = false;
+    matchedProfile = null;
+  };
 </script>
 
-<div class="min-h-screen  flex flex-col relative overflow-hidden">
-  
-  <div class="fixed sm:top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
+{#if showMatchModal && matchedProfile}
+  <div 
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+    role="presentation"
+  >
+    <button 
+      class="absolute inset-0 w-full h-full cursor-default"
+      onclick={closeMatchModal}
+      aria-label="Close match modal"
+    ></button>
+    <div 
+      class="relative bg-white rounded-3xl p-8 max-w-sm mx-4 text-center shadow-2xl"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="flex justify-center mb-4">
+        <div class="relative">
+          <div class="w-24 h-24 rounded-full overflow-hidden ring-4 ring-pink-400 shadow-lg">
+            <img 
+              src={matchedProfile.photos?.[0] || `https://ui-avatars.com/api/?name=${matchedProfile.fullname}&size=200&background=random`}
+              alt={matchedProfile.fullname}
+              class="w-full h-full object-cover"
+            />
+          </div>
+          <div class="absolute -bottom-2 -right-2 bg-pink-500 rounded-full p-2">
+            <HeartIcon class="w-5 h-5 text-white" />
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-center gap-2 mb-2">
+        <PartyPopperIcon class="w-6 h-6 text-yellow-500" />
+        <h2 class="text-2xl font-bold bg-linear-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+          It's a Match!
+        </h2>
+        <PartyPopperIcon class="w-6 h-6 text-yellow-500 scale-x-[-1]" />
+      </div>
+      
+      <p class="text-gray-600 mb-6">
+        Kamu dan <span class="font-semibold text-pink-600">{matchedProfile.fullname}</span> saling menyukai!
+      </p>
+      
+      <div class="flex gap-3">
+        <button 
+          onclick={closeMatchModal}
+          class="flex-1 py-3 px-4 border-2 border-gray-200 rounded-full font-semibold text-gray-600 hover:bg-gray-50 transition"
+        >
+          Nanti Dulu
+        </button>
+        <a 
+          href="/chat"
+          class="flex-1 py-3 px-4 bg-linear-to-r from-pink-500 to-rose-500 rounded-full font-semibold text-white hover:opacity-90 transition text-center"
+        >
+          Kirim Pesan
+        </a>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<div class="min-h-screen flex flex-col relative overflow-hidden">
+  <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
   <div class="fixed bottom-[10%] right-[-10%] w-[50%] h-[40%] bg-purple-300 rounded-full blur-[100px] opacity-30 pointer-events-none"></div>
 
-  <main class="flex-1 flex flex-col justify-center px-4 max-w-md mx-auto w-full relative z-10 ">
-    
+  <main class="flex-1 flex flex-col justify-center px-4 max-w-md mx-auto w-full relative z-10 pt-4 pb-24">
     {#if isLoading}
       <SkeletonCard />
       <div class="mt-8 flex justify-center gap-8 opacity-50">
-         <div class="w-14 h-14 rounded-full bg-gray-200 animate-pulse"></div>
-         <div class="w-14 h-14 rounded-full bg-gray-200 animate-pulse"></div>
+        <div class="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
+        <div class="w-16 h-16 rounded-full bg-gray-200 animate-pulse"></div>
       </div>
 
-    {:else if error}
-      <div class="text-center py-20">
-        <p class="text-red-500 mb-4">{error}</p>
-        <button onclick={() => fetchProfiles(false)} class="bg-pink-500 text-white px-6 py-2 rounded-full">Coba Lagi</button>
+    {:else if !profiles || profiles.length === 0 || !currentProfile}
+      <div class="flex flex-col items-center justify-center h-[60vh] text-center px-6">
+        <div class="p-6 bg-linear-to-br from-pink-50 to-rose-50 rounded-full shadow-lg mb-6">
+          <SearchXIcon class="w-16 h-16 text-pink-300" />
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Belum Ada Orang Baru</h2>
+        <p class="text-gray-500 mb-8 max-w-xs">
+          Sepertinya kamu sudah melihat semua orang untuk saat ini. Coba lagi nanti!
+        </p>
+        <button 
+          onclick={handleRefresh}
+          class="flex items-center gap-2 bg-linear-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition font-semibold"
+        >
+          <RefreshCwIcon class="w-5 h-5" />
+          Refresh
+        </button>
       </div>
 
-    {:else if currentProfile}
+    {:else}
       <div class="relative w-full aspect-3/4">
-        
         {#if profiles[currentIndex + 1]}
           <div class="absolute inset-0 top-3 scale-95 opacity-50 z-0 brightness-90">
-             <NewCard profile={profiles[currentIndex + 1]} />
+            <NewCard profile={profiles[currentIndex + 1]} />
           </div>
         {/if}
 
-        {#key currentProfile.id}
+        {#key currentProfile._id}
           <div 
             class="absolute inset-0 z-20 cursor-grab active:cursor-grabbing"
             in:scale={{ start: 0.95, duration: 300, easing: quintOut }}
@@ -165,25 +198,21 @@
 
       <div class="relative z-30">
         <ActionButtons 
-          on:like={() => handleAction('LIKE')} 
-          on:dislike={() => handleAction('DISLIKE')} 
+          onlike={() => handleAction('LIKE')} 
+          ondislike={() => handleAction('DISLIKE')}
+          disabled={isSwiping}
         />
       </div>
 
-    {:else}
-      <div class="flex flex-col items-center justify-center h-[60vh] text-center">
-        <div class="p-6 bg-white rounded-full shadow-lg mb-6">
-          <ZapIcon class="w-12 h-12 text-gray-400" />
-        </div>
-        <h2 class="text-xl font-bold text-gray-800">Tidak ada orang baru</h2>
-        <p class="text-gray-500 mt-2 mb-6">Coba perlebar jarak pencarian kamu.</p>
-        <button onclick={() => fetchProfiles(false)} class="bg-linear-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full shadow-lg hover:scale-105 transition">
-          Refresh
-        </button>
-      </div>
+      {#if swipeError}
+        <p class="text-center text-sm text-red-500 mt-2">{swipeError}</p>
+      {/if}
+
+      <p class="text-center text-sm text-gray-400 mt-2">
+        {remaining} profil tersisa
+      </p>
     {/if}
   </main>
 
   <BottomNav />
-  
 </div>

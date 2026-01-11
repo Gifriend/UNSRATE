@@ -1,38 +1,41 @@
-export interface Profile {
-  location: any;
-  id: string;
-  name: string;
+import type { Id } from "../../convex/_generated/dataModel";
+
+export interface ExploreProfile {
+  _id: Id<"profiles">;
   fullname: string;
+  nickname: string;
   age: number;
   bio: string;
-  photos: string[]; 
-  profilePicture?: string;
-  gender?: "MALE" | "FEMALE";
-  fakultas?: string;
-  prodi?: string;
-  interests?: Array<{ id: string; name: string }>;
-  matchScore?: number;
+  gender: "MALE" | "FEMALE";
+  fakultas: string;
+  prodi: string;
+  photos: string[];
+  interests: Array<{ _id: Id<"interests">; name: string; icon?: string }>;
+  matchScore: number;
 }
 
-export interface ExploreResponse {
-  statusCode: number;
-  message: string;
-  swipe: {
-    id: string;
-    swiperUserId: string;
-    swipedUserId: string;
-    action: "LIKE" | "DISLIKE";
-    createdAt: string;
-  };
-  match?: {
-    id: string;
-    userAId: string;
-    userBId: string;
-    createdAt: string;
-  };
+export interface MatchResult {
+  _id: Id<"matches">;
+  matchedProfile: {
+    _id: Id<"profiles">;
+    fullname: string;
+    photos: string[];
+  } | null;
 }
 
-export interface ExploreRequest {
-  swipedUserId: string;
-  action: "LIKE" | "DISLIKE";
+export interface SwipeResult {
+  success: boolean;
+  match: MatchResult | null;
+}
+
+export interface MatchedUser {
+  matchId: Id<"matches">;
+  matchedAt: number;
+  profile: {
+    _id: Id<"profiles">;
+    fullname: string;
+    nickname: string;
+    photos: string[];
+    bio: string;
+  };
 }

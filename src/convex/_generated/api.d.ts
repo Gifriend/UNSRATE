@@ -9,8 +9,12 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as explore from "../explore.js";
 import type * as http from "../http.js";
+import type * as interests from "../interests.js";
+import type * as matches from "../matches.js";
 import type * as profiles from "../profiles.js";
+import type * as storage from "../storage.js";
 
 import type {
   ApiFromModules,
@@ -20,8 +24,12 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  explore: typeof explore;
   http: typeof http;
+  interests: typeof interests;
+  matches: typeof matches;
   profiles: typeof profiles;
+  storage: typeof storage;
 }>;
 
 /**

@@ -13,7 +13,24 @@ export const getMyProfile = query({
       .withIndex("by_userId", (q) => q.eq("userId", authUser._id))
       .unique();
 
-    return profile;
+    if (!profile) return null;
+
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return {
+      ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
+    };
   },
 });
 
@@ -25,7 +42,66 @@ export const getProfileByUserId = query({
       .withIndex("by_userId", (q) => q.eq("userId", args.userId))
       .unique();
 
-    return profile;
+    if (!profile) return null;
+
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    return {
+      ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
+    };
+  },
+});
+
+export const getProfileById = query({
+  args: { profileId: v.id("profiles") },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) return null;
+
+    const interestDocs = await ctx.db.query("interests").collect();
+    const interestMap = new Map(interestDocs.map(i => [i._id.toString(), { _id: i._id, name: i.name, icon: i.icon }]));
+
+    const interests = (profile.interests ?? [])
+      .map(id => interestMap.get(id.toString()))
+      .filter(Boolean);
+
+    const photoUrls = await Promise.all(
+      (profile.photos ?? []).map(async (photoId) => {
+        if (photoId.startsWith('http')) return photoId;
+        try {
+          const url = await ctx.storage.getUrl(photoId as any);
+          return url;
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const birth = new Date(profile.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return {
+      ...profile,
+      photos: photoUrls.filter(Boolean) as string[],
+      age,
+      interests,
+    };
   },
 });
 
@@ -40,7 +116,7 @@ export const createProfile = mutation({
     angkatan: v.number(),
     bio: v.string(),
     photos: v.array(v.string()),
-    interests: v.optional(v.array(v.string())),
+    interests: v.optional(v.array(v.id("interests"))),
   },
   handler: async (ctx, args) => {
     const authUser = await authComponent.getAuthUser(ctx);
@@ -92,7 +168,7 @@ export const updateProfile = mutation({
     angkatan: v.optional(v.number()),
     bio: v.optional(v.string()),
     photos: v.optional(v.array(v.string())),
-    interests: v.optional(v.array(v.string())),
+    interests: v.optional(v.array(v.id("interests"))),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

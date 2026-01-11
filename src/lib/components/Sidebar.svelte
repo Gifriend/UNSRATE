@@ -7,16 +7,31 @@
     UserIcon, 
     LogOutIcon,
     SettingsIcon 
-  } from 'lucide-svelte'; 
+  } from 'lucide-svelte';
+  import { logout } from '$lib/stores/auth';
+  import { useQuery } from 'convex-svelte';
+  import { api } from '../../convex/_generated/api';
 
-  const menuItems = [
-    { icon: ZapIcon, label: 'Jelajahi', href: '/explore' },
-    // { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches' },
-    { icon: MessageCircleIcon, label: 'Pesan', href: '/chat' },
-    { icon: UserIcon, label: 'Profil', href: '/profile' },
-  ];
+  const unseenMatchesQuery = useQuery(api.matches.getUnseenMatchCount, () => ({}));
+  const unseenCount = $derived(unseenMatchesQuery.data ?? 0);
 
-  $: activePath = $page.url.pathname;
+  const menuItems = $derived([
+    { icon: ZapIcon, label: 'Jelajahi', href: '/explore', badge: 0 },
+    { icon: HeartIcon, label: 'Suka & Cocok', href: '/matches', badge: unseenCount },
+    { icon: MessageCircleIcon, label: 'Pesan', href: '/chat', badge: 0 },
+    { icon: UserIcon, label: 'Profil', href: '/profile', badge: 0 },
+  ]);
+
+  let isLoggingOut = $state(false);
+
+  async function handleLogout() {
+    if (isLoggingOut) return;
+    isLoggingOut = true;
+    await logout();
+    isLoggingOut = false;
+  }
+
+  const activePath = $derived($page.url.pathname);
 </script>
 
 <aside class="hidden md:flex flex-col fixed left-0 top-0 h-screen w-18 lg:w-64 bg-white border-r border-gray-300 z-50 transition-all duration-300">
@@ -46,14 +61,22 @@
                  : 'text-gray-500 hover:bg-gray-100 hover:text-text-main'}"
       >
         <div class="relative group-hover:scale-110 transition-transform duration-200">
-             <svelte:component this={item.icon} size={26} strokeWidth={activePath.startsWith(item.href) ? 2.5 : 2} />
+             <item.icon size={26} strokeWidth={activePath.startsWith(item.href) ? 2.5 : 2} />
              
-             {#if item.label === 'Messages' || item.label === 'Likes & Matches'}
-               <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary rounded-full border border-white"></span>
+             {#if item.badge > 0}
+               <span class="absolute -top-1 -right-1 min-w-4 h-4 flex items-center justify-center bg-pink-500 text-white text-[10px] font-bold rounded-full px-1">
+                 {item.badge > 99 ? '99+' : item.badge}
+               </span>
              {/if}
         </div>
 
         <span class="hidden lg:block text-[15px] tracking-wide">{item.label}</span>
+        
+        {#if item.badge > 0}
+          <span class="hidden lg:flex ml-auto min-w-5 h-5 items-center justify-center bg-pink-500 text-white text-xs font-bold rounded-full px-1.5">
+            {item.badge > 99 ? '99+' : item.badge}
+          </span>
+        {/if}
       </a>
     {/each}
   </nav>
@@ -63,8 +86,19 @@
       <SettingsIcon size={26} />
       <span class="hidden lg:block text-[15px]">Pengaturan</span>
     </button>
-    <button class="w-full flex items-center gap-4 p-3 rounded-xl text-gray-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group">
-      <LogOutIcon size={26} />
+    <button 
+      onclick={handleLogout}
+      disabled={isLoggingOut}
+      class="w-full flex items-center gap-4 p-3 rounded-xl text-grey-500 hover:bg-red-50 hover:text-red-600 transition-colors text-left group disabled:opacity-50"
+    >
+      {#if isLoggingOut}
+        <svg class="animate-spin h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+      {:else}
+        <LogOutIcon size={26} />
+      {/if}
       <span class="hidden lg:block text-[15px]">Keluar</span>
     </button>
   </div>
