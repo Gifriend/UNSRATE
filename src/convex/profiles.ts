@@ -40,7 +40,7 @@ export const createProfile = mutation({
     angkatan: v.number(),
     bio: v.string(),
     photos: v.array(v.string()),
-    interests: v.optional(v.array(v.string())),
+    interests: v.optional(v.array(v.id("interests"))),
   },
   handler: async (ctx, args) => {
     const authUser = await authComponent.getAuthUser(ctx);
@@ -92,7 +92,7 @@ export const updateProfile = mutation({
     angkatan: v.optional(v.number()),
     bio: v.optional(v.string()),
     photos: v.optional(v.array(v.string())),
-    interests: v.optional(v.array(v.string())),
+    interests: v.optional(v.array(v.id("interests"))),
     isActive: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {

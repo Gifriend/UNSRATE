@@ -3,6 +3,7 @@
   import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { api } from '$convex/_generated/api';
+  import type { Id } from '$convex/_generated/dataModel';
   import {
     FAKULTAS_LIST,
     getProdiList,
@@ -13,8 +14,8 @@
   const auth = useAuth();
   const client = useConvexClient();
   const profileCheck = useQuery(api.profiles.checkProfileComplete, {});
+  const interestsQuery = useQuery(api.interests.getAll, {});
 
-  // Redirect jika user sudah punya profil lengkap
   $effect(() => {
     if (!profileCheck.isLoading && profileCheck.data?.hasProfile && profileCheck.data?.isComplete) {
       goto('/explore', { replaceState: true });
@@ -22,7 +23,7 @@
   });
 
   let currentStep = $state(1);
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   let fullname = $state('');
   let nickname = $state('');
@@ -32,6 +33,7 @@
   let prodi = $state('');
   let angkatan = $state<number | ''>('');
   let bio = $state('');
+  let selectedInterests = $state<Id<"interests">[]>([]);
   let photoUrl = $state('');
   let photoFile = $state<File | null>(null);
   let isUploading = $state(false);
@@ -48,6 +50,14 @@
       prodi = '';
     }
   });
+
+  function toggleInterest(id: Id<"interests">) {
+    if (selectedInterests.includes(id)) {
+      selectedInterests = selectedInterests.filter(i => i !== id);
+    } else if (selectedInterests.length < 5) {
+      selectedInterests = [...selectedInterests, id];
+    }
+  }
 
   function nextStep() {
     if (currentStep < totalSteps) {
@@ -76,6 +86,8 @@
 
   const canProceedStep3 = $derived(bio.trim().length >= 10);
 
+  const canProceedStep4 = $derived(selectedInterests.length >= 3);
+
   const canSubmit = $derived(photoUrl.trim().length > 0);
 
   async function handleSubmit() {
@@ -95,6 +107,7 @@
         angkatan: angkatan as number,
         bio: bio.trim(),
         photos: [photoUrl.trim()],
+        interests: selectedInterests,
       });
 
       await goto('/explore', { replaceState: true });
@@ -260,6 +273,43 @@
     {:else if currentStep === 4}
       <div class="space-y-6">
         <div>
+          <h1 class="text-2xl font-bold text-slate-800">Minat & Hobi</h1>
+          <p class="text-slate-500 mt-1">Pilih 3-5 minat yang menggambarkan dirimu</p>
+        </div>
+
+        {#if interestsQuery.isLoading}
+          <div class="flex justify-center py-8">
+            <svg class="animate-spin h-8 w-8 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+          </div>
+        {:else if interestsQuery.data}
+          <div class="flex flex-wrap gap-2">
+            {#each interestsQuery.data as interest}
+              <button
+                type="button"
+                onclick={() => toggleInterest(interest._id)}
+                disabled={!selectedInterests.includes(interest._id) && selectedInterests.length >= 5}
+                class="px-4 py-2 rounded-full border-2 transition-all text-sm font-medium
+                  {selectedInterests.includes(interest._id) 
+                    ? 'border-pink-500 bg-pink-50 text-pink-600' 
+                    : 'border-slate-200 text-slate-600 hover:border-slate-300'}
+                  disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {interest.icon} {interest.name}
+              </button>
+            {/each}
+          </div>
+          <p class="text-sm text-slate-400">{selectedInterests.length}/5 dipilih (min. 3)</p>
+        {:else}
+          <p class="text-slate-500 text-center py-8">Tidak ada data interests</p>
+        {/if}
+      </div>
+
+    {:else if currentStep === 5}
+      <div class="space-y-6">
+        <div>
           <h1 class="text-2xl font-bold text-slate-800">Foto Profil</h1>
           <p class="text-slate-500 mt-1">Tambahkan minimal 1 foto</p>
         </div>
@@ -315,7 +365,12 @@
         <button
           type="button"
           onclick={nextStep}
-          disabled={(currentStep === 1 && !canProceedStep1) || (currentStep === 2 && !canProceedStep2) || (currentStep === 3 && !canProceedStep3)}
+          disabled={
+            (currentStep === 1 && !canProceedStep1) || 
+            (currentStep === 2 && !canProceedStep2) || 
+            (currentStep === 3 && !canProceedStep3) ||
+            (currentStep === 4 && !canProceedStep4)
+          }
           class="flex-1 py-3.5 px-4 rounded-xl bg-linear-to-r from-pink-500 to-rose-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Lanjut
