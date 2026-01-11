@@ -48,8 +48,11 @@ export default defineSchema({
   matches: defineTable({
     profile1Id: v.id("profiles"),
     profile2Id: v.id("profiles"),
+    isSeenByProfile1: v.boolean(),
+    isSeenByProfile2: v.boolean(),
     createdAt: v.number(),
   })
     .index("by_profile1", ["profile1Id"])
-    .index("by_profile2", ["profile2Id"]),
+    .index("by_profile2", ["profile2Id"])
+    .index("by_profiles", ["profile1Id", "profile2Id"]),
 });

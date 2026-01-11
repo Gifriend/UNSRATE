@@ -211,6 +211,8 @@ export const swipe = mutation({
           const matchId = await ctx.db.insert("matches", {
             profile1Id: myProfile._id,
             profile2Id: args.swipeeId,
+            isSeenByProfile1: true,
+            isSeenByProfile2: false,
             createdAt: Date.now(),
           });
 
