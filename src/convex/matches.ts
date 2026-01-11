@@ -2,6 +2,8 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { authComponent } from "./auth";
 
+const ONLINE_THRESHOLD_MS = 60000;
+
 function calculateAge(birthDate: string): number {
   const birth = new Date(birthDate);
   const today = new Date();
@@ -52,6 +54,15 @@ export const getMatches = query({
         const partner = await ctx.db.get(partnerId);
         if (!partner || !partner.isActive) return null;
 
+        const presence = await ctx.db
+          .query("presence")
+          .withIndex("by_profileId", (q) => q.eq("profileId", partnerId))
+          .unique();
+
+        const isOnline = presence 
+          ? Date.now() - presence.lastSeen < ONLINE_THRESHOLD_MS 
+          : false;
+
         const interests = (partner.interests ?? [])
           .map(id => interestMap.get(id.toString()))
           .filter(Boolean);
@@ -80,6 +91,7 @@ export const getMatches = query({
           bio: partner.bio,
           interests,
           isNew,
+          isOnline,
           createdAt: match.createdAt,
         };
       })

@@ -55,4 +55,36 @@ export default defineSchema({
     .index("by_profile1", ["profile1Id"])
     .index("by_profile2", ["profile2Id"])
     .index("by_profiles", ["profile1Id", "profile2Id"]),
+
+  conversations: defineTable({
+    matchId: v.id("matches"),
+    participant1Id: v.id("profiles"),
+    participant2Id: v.id("profiles"),
+    lastMessagePreview: v.optional(v.string()),
+    lastMessageAt: v.optional(v.number()),
+    participant1UnreadCount: v.number(),
+    participant2UnreadCount: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_matchId", ["matchId"])
+    .index("by_participant1", ["participant1Id"])
+    .index("by_participant2", ["participant2Id"])
+    .index("by_lastMessage", ["lastMessageAt"]),
+
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    senderId: v.id("profiles"),
+    encryptedContent: v.string(),
+    type: v.union(v.literal("text"), v.literal("image"), v.literal("system")),
+    readAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_conversation_created", ["conversationId", "createdAt"]),
+
+  presence: defineTable({
+    profileId: v.id("profiles"),
+    lastSeen: v.number(),
+  })
+    .index("by_profileId", ["profileId"]),
 });
