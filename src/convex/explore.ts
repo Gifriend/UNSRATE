@@ -45,6 +45,7 @@ function calculateMatchScore(
 export const getExploreProfiles = query({
   args: {
     limit: v.optional(v.number()),
+    _key: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const authUser = await authComponent.getAuthUser(ctx);
@@ -97,11 +98,11 @@ export const getExploreProfiles = query({
     }
 
     const myInterests = myProfile.interests ?? [];
-    const minAge = myProfile.prefMinAge ?? 18;
-    const maxAge = myProfile.prefMaxAge ?? 30;
+    const minAge = myProfile.prefMinAge ?? 17;
+    const maxAge = myProfile.prefMaxAge ?? 35;
 
     const interestDocs = await ctx.db.query("interests").collect();
-    const interestMap = new Map(interestDocs.map(i => [i._id, { id: i._id, name: i.name, icon: i.icon }]));
+    const interestMap = new Map(interestDocs.map(i => [i._id, { _id: i._id, name: i.name, icon: i.icon ?? undefined }]));
 
     const scoredProfiles = allProfiles
       .filter(p => !excludedIds.has(p._id as unknown as string))

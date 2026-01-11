@@ -10,7 +10,7 @@ export interface ExploreProfile {
   fakultas: string;
   prodi: string;
   photos: string[];
-  interests: Array<{ id: Id<"interests">; name: string; icon?: string }>;
+  interests: Array<{ _id: Id<"interests">; name: string; icon?: string }>;
   matchScore: number;
 }
 
