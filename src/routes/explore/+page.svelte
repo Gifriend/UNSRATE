@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { SearchXIcon, HeartIcon, RefreshCwIcon, PartyPopperIcon } from 'lucide-svelte';
+  import { SearchXIcon, HeartIcon, RefreshCwIcon, PartyPopperIcon, Loader2Icon } from 'lucide-svelte';
   import { useConvexClient, useQuery } from 'convex-svelte';
   import { api } from '../../convex/_generated/api';
   import type { ExploreProfile, MatchResult } from '$lib/types/explore';
@@ -12,13 +12,16 @@
   import NewCard from '$lib/components/NewCard.svelte';
 
   const convex = useConvexClient();
-  const profilesQuery = useQuery(api.explore.getExploreProfiles, { limit: 10 });
+  
+  let fetchKey = $state(0);
+  const profilesQuery = useQuery(api.explore.getExploreProfiles, () => ({ limit: 20, _key: fetchKey }));
 
   let currentIndex = $state(0);
   let swipeDirection = $state<'left' | 'right' | null>(null);
   let isSwiping = $state(false);
   let showMatchModal = $state(false);
   let matchedProfile = $state<MatchResult['matchedProfile'] | null>(null);
+  let swipeError = $state<string | null>(null);
 
   const profiles = $derived(profilesQuery.data as ExploreProfile[] | undefined);
   const isLoading = $derived(profilesQuery.isLoading);
@@ -31,6 +34,7 @@
     isSwiping = true;
     swipeDirection = action === 'LIKE' ? 'right' : 'left';
     const profileId = currentProfile._id;
+    const previousIndex = currentIndex;
 
     setTimeout(async () => {
       currentIndex++;
@@ -42,12 +46,20 @@
           action,
         });
 
+        swipeError = null;
+
         if (result.match) {
           matchedProfile = result.match.matchedProfile;
           showMatchModal = true;
         }
+
+        if (remaining <= 3) {
+          handleRefresh();
+        }
       } catch (e) {
         console.error("Swipe failed", e);
+        swipeError = "Gagal menyimpan. Coba lagi.";
+        currentIndex = previousIndex;
       } finally {
         isSwiping = false;
       }
@@ -56,6 +68,7 @@
 
   const handleRefresh = () => {
     currentIndex = 0;
+    fetchKey++;
   };
 
   const closeMatchModal = () => {
@@ -191,7 +204,11 @@
         />
       </div>
 
-      <p class="text-center text-sm text-gray-400 mt-4">
+      {#if swipeError}
+        <p class="text-center text-sm text-red-500 mt-2">{swipeError}</p>
+      {/if}
+
+      <p class="text-center text-sm text-gray-400 mt-2">
         {remaining} profil tersisa
       </p>
     {/if}

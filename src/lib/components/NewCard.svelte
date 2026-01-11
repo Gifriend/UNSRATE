@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { MapPinIcon, InfoIcon } from 'lucide-svelte';
+  import { goto } from '$app/navigation';
+  import { InfoIcon } from 'lucide-svelte';
   import type { ExploreProfile } from '$lib/types/explore';
 
   let { profile }: { profile: ExploreProfile } = $props();
@@ -9,6 +10,11 @@
       ? profile.photos[0] 
       : `https://ui-avatars.com/api/?name=${profile.fullname}&size=500&background=random`
   );
+
+  function openProfile(e: MouseEvent) {
+    e.stopPropagation();
+    goto(`/user/${profile._id}`);
+  }
 </script>
 
 <div class="relative w-full aspect-3/4 bg-white rounded-3xl overflow-hidden shadow-xl select-none group">
@@ -43,7 +49,11 @@
         {/if}
       </div>
 
-      <button class="bg-white/10 backdrop-blur-md p-2 rounded-full hover:bg-white/20 transition active:scale-95">
+      <button 
+        onclick={openProfile}
+        class="bg-white/10 backdrop-blur-md p-2 rounded-full hover:bg-white/20 transition active:scale-95"
+        aria-label="Lihat profil lengkap"
+      >
         <InfoIcon class="w-6 h-6 text-white" />
       </button>
     </div>

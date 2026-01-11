@@ -29,6 +29,35 @@ export const getProfileByUserId = query({
   },
 });
 
+export const getProfileById = query({
+  args: { profileId: v.id("profiles") },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) return null;
+
+    const interestDocs = await ctx.db.query("interests").collect();
+    const interestMap = new Map(interestDocs.map(i => [i._id.toString(), { _id: i._id, name: i.name, icon: i.icon }]));
+
+    const interests = (profile.interests ?? [])
+      .map(id => interestMap.get(id.toString()))
+      .filter(Boolean);
+
+    const birth = new Date(profile.birthDate);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+
+    return {
+      ...profile,
+      age,
+      interests,
+    };
+  },
+});
+
 export const createProfile = mutation({
   args: {
     fullname: v.string(),
