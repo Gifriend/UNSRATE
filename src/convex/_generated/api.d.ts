@@ -9,7 +9,9 @@
  */
 
 import type * as auth from "../auth.js";
+import type * as explore from "../explore.js";
 import type * as http from "../http.js";
+import type * as interests from "../interests.js";
 import type * as profiles from "../profiles.js";
 
 import type {
@@ -20,7 +22,9 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  explore: typeof explore;
   http: typeof http;
+  interests: typeof interests;
   profiles: typeof profiles;
 }>;
 
