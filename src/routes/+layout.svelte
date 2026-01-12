@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { ParaglideJS } from '@inlang/paraglide-sveltekit'
+	import { i18n } from '$lib/i18n'
+
 	import './layout.css';
 	import favicon from '$lib/assets/unsrate.png';
 	import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
@@ -7,6 +10,8 @@
 	import { page } from '$app/stores';
 	import Sidebar from '$lib/components/Sidebar.svelte';
 	import BottomNav from '$lib/components/BottomNav.svelte';
+	import { themeStore } from '$lib/stores/theme';
+	import { onMount } from 'svelte';
 
 	const hiddenRoutes = ['/login', '/register', '/', '/onboarding'];
 	let isHidden = $derived(hiddenRoutes.includes($page.url.pathname));
@@ -17,9 +22,15 @@
 		authClient,
 		getServerState: () => data.authState
 	});
+
+	onMount(() => {
+		themeStore.init();
+	});
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
+
+<ParaglideJS {i18n}>
 
 {#if !isHidden}
 	<Sidebar />
@@ -36,3 +47,5 @@
 		<BottomNav />
 	</div>
 {/if}
+
+</ParaglideJS>

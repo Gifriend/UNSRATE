@@ -1,10 +1,12 @@
+import { paraglide } from '@inlang/paraglide-sveltekit/vite'
+import devtoolsJson from 'vite-plugin-devtools-json';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { playwright } from '@vitest/browser-playwright';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [paraglide({ project: './project.inlang', outdir: './src/lib/paraglide' }),tailwindcss(), sveltekit(), devtoolsJson()],
 
 	test: {
 		expect: { requireAssertions: true },

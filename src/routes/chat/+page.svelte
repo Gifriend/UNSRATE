@@ -139,9 +139,13 @@
   }
 </script>
 
-<div class="h-[calc(100vh-80px)] md:h-screen flex relative overflow-hidden md:ml-18 lg:ml-64">
-  <div class="fixed top-[-10%] left-[-10%] w-[50%] h-[40%] bg-pink-300 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
-  <div class="fixed bottom-[10%] right-[-10%] w-[50%] h-[40%] bg-purple-300 rounded-full blur-[100px] opacity-20 pointer-events-none"></div>
+<div class="relative flex h-[calc(100vh-50px)] overflow-hidden md:h-screen sm:ml-18">
+	<div
+		class="pointer-events-none fixed top-[-10%] left-[-10%] h-[40%] w-[50%] rounded-full bg-pink-300 opacity-20 blur-[100px]"
+	></div>
+	<div
+		class="pointer-events-none fixed right-[-10%] bottom-[10%] h-[40%] w-[50%] rounded-full bg-purple-300 opacity-20 blur-[100px]"
+	></div>
 
   <div class="
     {selectedConversationId ? 'hidden md:flex' : 'flex'} 
@@ -353,4 +357,3 @@
     {/if}
   </div>
 </div>
-

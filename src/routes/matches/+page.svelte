@@ -16,6 +16,7 @@
   } from 'lucide-svelte';
   import BottomNav from '$lib/components/BottomNav.svelte';
   import Sidebar from '$lib/components/Sidebar.svelte';
+  import * as m from '$lib/paraglide/messages';
 
   const convex = useConvexClient();
   const matchesQuery = useQuery(api.matches.getMatches, () => ({ sortBy: "recent" as const }));
@@ -93,27 +94,27 @@
 
 <Sidebar />
 
-<div class="min-h-screen bg-slate-50 md:ml-18 lg:ml-64">
+<div class="min-h-screen bg-slate-50">
   <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-100">
     <div class="max-w-lg mx-auto px-4 py-4">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
           <HeartIcon class="w-6 h-6 text-pink-500" />
-          <h1 class="text-xl font-bold text-gray-800">Matches</h1>
+          <h1 class="text-xl font-bold text-gray-800">{m.matches_title()}</h1>
           {#if newMatchesCount > 0}
             <span class="px-2 py-0.5 bg-pink-500 text-white text-xs font-bold rounded-full">
-              {newMatchesCount} baru
+              {newMatchesCount} {m.matches_new()}
             </span>
           {/if}
         </div>
-        <span class="text-sm text-gray-500">{matches.length} match</span>
+        <span class="text-sm text-gray-500">{m.matches_count({ count: matches.length })}</span>
       </div>
 
       <div class="relative">
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
           type="text"
-          placeholder="Cari match..."
+          placeholder="{m.matches_search()}"
           bind:value={searchQuery}
           class="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 transition"
         />
@@ -150,23 +151,23 @@
         <div class="p-6 bg-pink-50 rounded-full mb-6">
           <SparklesIcon class="w-16 h-16 text-pink-300" />
         </div>
-        <h2 class="text-2xl font-bold text-gray-800 mb-2">Belum Ada Match</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">{m.matches_no_matches()}</h2>
         <p class="text-gray-500 mb-6 max-w-xs">
-          Terus explore dan like orang yang kamu tertarik. Match akan muncul di sini!
+          {m.matches_no_matches_desc()}
         </p>
         <button 
           onclick={() => goto('/explore')}
           class="flex items-center gap-2 bg-pink-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-pink-600 transition"
         >
           <HeartIcon class="w-5 h-5" />
-          Mulai Explore
+          {m.matches_start_explore()}
         </button>
       </div>
 
     {:else if filteredMatches.length === 0}
       <div class="flex flex-col items-center justify-center py-20 text-center">
         <SearchIcon class="w-12 h-12 text-gray-300 mb-4" />
-        <p class="text-gray-500">Tidak ada match dengan nama "{searchQuery}"</p>
+        <p class="text-gray-500">{m.matches_no_search_results({ query: searchQuery })}</p>
       </div>
 
     {:else}
@@ -179,7 +180,7 @@
             >
               {#if match.isNew}
                 <div class="absolute -top-2 -right-2 px-2 py-0.5 bg-pink-500 text-white text-xs font-bold rounded-full">
-                  NEW
+                  {m.matches_new_badge()}
                 </div>
               {/if}
 
@@ -279,9 +280,9 @@
         </div>
       </div>
 
-      <h3 class="text-xl font-bold text-gray-800 mb-2">Unmatch {selectedMatchName}?</h3>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">{m.matches_unmatch_confirm({ name: selectedMatchName })}</h3>
       <p class="text-gray-500 text-sm mb-6">
-        Kamu akan kehilangan match ini dan tidak bisa chat lagi. Tindakan ini tidak bisa dibatalkan.
+        {m.matches_unmatch_desc()}
       </p>
 
       <div class="flex gap-3">
@@ -289,7 +290,7 @@
           onclick={closeUnmatchModal}
           class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition"
         >
-          Batal
+          {m.common_cancel()}
         </button>
         <button 
           onclick={handleUnmatch}
@@ -302,7 +303,7 @@
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
             </svg>
           {:else}
-            Unmatch
+            {m.matches_unmatch()}
           {/if}
         </button>
       </div>
