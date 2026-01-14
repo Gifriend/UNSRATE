@@ -6,6 +6,8 @@
   import { onMount, onDestroy } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
+  import * as m from '$lib/paraglide/messages';
+  import { languageTag } from '$lib/paraglide/runtime';
 
   const client = useConvexClient();
   const conversationsQuery = useQuery(api.conversations.getConversations, {});
@@ -123,14 +125,16 @@
     const now = new Date();
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     
+    const locale = languageTag() === 'id' ? 'id-ID' : 'en-US';
+    
     if (diffDays === 0) {
-      return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
     } else if (diffDays === 1) {
-      return 'Kemarin';
+      return m.chat_yesterday();
     } else if (diffDays < 7) {
-      return date.toLocaleDateString('id-ID', { weekday: 'short' });
+      return date.toLocaleDateString(locale, { weekday: 'short' });
     } else {
-      return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+      return date.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
     }
   }
 
@@ -154,15 +158,15 @@
     relative z-10
   ">
     <header class="shrink-0 bg-white/80 backdrop-blur-md border-b border-gray-100 px-4 py-4">
-      <h1 class="text-2xl font-bold text-gray-900">Pesan</h1>
-      <p class="text-sm text-gray-500 mt-0.5">Chat dengan match kamu</p>
+      <h1 class="text-2xl font-bold text-gray-900">{m.chat_title()}</h1>
+      <p class="text-sm text-gray-500 mt-0.5">{m.chat_subtitle()}</p>
       
       <div class="relative mt-4">
         <SearchIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
           type="text"
           bind:value={searchQuery}
-          placeholder="Cari percakapan..."
+          placeholder={m.chat_search()}
           class="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-0 rounded-xl text-sm focus:ring-2 focus:ring-pink-500/50 focus:bg-white transition-all"
         />
       </div>
@@ -178,8 +182,8 @@
           <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
             <SendIcon class="w-8 h-8 text-gray-400" />
           </div>
-          <p class="text-gray-500 text-center">Belum ada percakapan</p>
-          <p class="text-gray-400 text-sm text-center mt-1">Match dengan seseorang untuk mulai chat!</p>
+          <p class="text-gray-500 text-center">{m.chat_no_conversations()}</p>
+          <p class="text-gray-400 text-sm text-center mt-1">{m.chat_no_conversations_desc()}</p>
         </div>
       {:else}
         <div class="divide-y divide-gray-100">
@@ -214,7 +218,7 @@
                   {/if}
                 </div>
                 <p class="text-sm text-gray-500 truncate mt-0.5">
-                  {conv.lastMessagePreview || 'Mulai percakapan...'}
+                  {conv.lastMessagePreview || m.chat_start_conversation()}
                 </p>
               </div>
 
@@ -238,7 +242,7 @@
       <header class="shrink-0 bg-white/90 backdrop-blur-md border-b border-gray-100 px-3 py-3 flex items-center gap-3">
         <button 
           onclick={goBack}
-          aria-label="Kembali"
+          aria-label={m.chat_back()}
           class="md:hidden p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors"
         >
           <ArrowLeftIcon class="w-5 h-5 text-gray-700" />
@@ -247,7 +251,7 @@
         <button 
           onclick={() => viewProfile(currentConversation.otherProfile._id)}
           class="relative shrink-0"
-          aria-label="Lihat profil"
+          aria-label={m.chat_view_profile()}
         >
           {#if currentConversation.otherProfile.photo}
             <img 
@@ -271,13 +275,13 @@
         >
           <h2 class="font-semibold text-gray-900 truncate">{currentConversation.otherProfile.nickname}</h2>
           <p class="text-xs {currentConversation.otherProfile.isOnline ? 'text-green-500' : 'text-gray-400'}">
-            {currentConversation.otherProfile.isOnline ? 'Online' : 'Offline'}
+            {currentConversation.otherProfile.isOnline ? m.chat_online() : m.chat_offline()}
           </p>
         </button>
 
         <button 
           class="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          aria-label="Opsi lainnya"
+          aria-label={m.chat_more_options()}
         >
           <MoreVerticalIcon class="w-5 h-5 text-gray-500" />
         </button>
@@ -293,8 +297,8 @@
           </div>
         {:else if messages.length === 0}
           <div class="flex flex-col items-center justify-center py-10 text-center">
-            <p class="text-gray-400 text-sm">Belum ada pesan</p>
-            <p class="text-gray-400 text-xs mt-1">Kirim pesan pertama! 👋</p>
+            <p class="text-gray-400 text-sm">{m.chat_no_messages()}</p>
+            <p class="text-gray-400 text-xs mt-1">{m.chat_no_messages_desc()}</p>
           </div>
         {:else}
           {#each messages as msg (msg._id)}
@@ -330,7 +334,7 @@
             <textarea
               bind:value={messageInput}
               onkeydown={handleKeydown}
-              placeholder="Ketik pesan..."
+              placeholder={m.chat_type_message()}
               rows={1}
               class="w-full px-4 py-3 bg-gray-100 border-0 rounded-2xl text-sm resize-none focus:ring-2 focus:ring-pink-500/50 focus:bg-white transition-all max-h-32"
             ></textarea>
@@ -338,7 +342,7 @@
           <button
             onclick={sendMessage}
             disabled={!messageInput.trim()}
-            aria-label="Kirim pesan"
+            aria-label={m.chat_send()}
             class="shrink-0 w-12 h-12 bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             <SendIcon class="w-5 h-5" />
@@ -351,8 +355,8 @@
         <div class="w-24 h-24 bg-linear-to-tr from-pink-100 to-rose-100 rounded-full flex items-center justify-center mb-6">
           <MessageCircleIcon class="w-12 h-12 text-pink-400" />
         </div>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">Pilih percakapan</h3>
-        <p class="text-gray-500 max-w-sm">Pilih salah satu percakapan dari daftar untuk mulai chatting</p>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">{m.chat_select_conversation()}</h3>
+        <p class="text-gray-500 max-w-sm">{m.chat_select_conversation_desc()}</p>
       </div>
     {/if}
   </div>

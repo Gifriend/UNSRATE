@@ -2,8 +2,10 @@
   import { ChevronRightIcon, MoonIcon, SunIcon, MonitorIcon, GlobeIcon, LogOutIcon, TrashIcon, ShieldBanIcon, ChevronLeftIcon } from 'lucide-svelte';
   import { logout } from '$lib/stores/auth';
   import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import * as m from '$lib/paraglide/messages';
-  import { languageTag, setLanguageTag, availableLanguageTags } from '$lib/paraglide/runtime';
+  import { languageTag } from '$lib/paraglide/runtime';
+  import { i18n } from '$lib/i18n';
   import { themeStore } from '$lib/stores/theme';
 
   let selectedMenu = $state<'main' | 'theme' | 'language' | 'blocked' | null>('main');
@@ -34,7 +36,19 @@
   }
 
   function handleLanguageChange(lang: 'en' | 'id') {
-    setLanguageTag(lang);
+    // Use i18n.route to get the correct path with language prefix
+    const currentPath = $page.url.pathname;
+    const newPath = i18n.route(currentPath);
+    
+    // Navigate to the path with the new language
+    if (lang === 'en') {
+      // For English, add /en prefix
+      goto(`/en${currentPath.replace(/^\/en/, '')}`);
+    } else {
+      // For Indonesian (default), remove /en prefix
+      goto(currentPath.replace(/^\/en/, '') || '/');
+    }
+    
     selectedMenu = 'main';
   }
 
@@ -237,7 +251,7 @@
         <div class="space-y-3">
           {#each [
             { value: 'id', label: m.settings_language_id(), flag: '🇮🇩' },
-            { value: 'en', label: m.settings_language_en(), flag: '🇬🇧' }
+            { value: 'en', label: m.settings_language_en(), flag: 'EN' }
           ] as lang}
             <button
               onclick={() => handleLanguageChange(lang.value as 'en' | 'id')}

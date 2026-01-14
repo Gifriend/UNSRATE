@@ -14,7 +14,12 @@
 	import { onMount } from 'svelte';
 
 	const hiddenRoutes = ['/login', '/register', '/', '/onboarding'];
-	let isHidden = $derived(hiddenRoutes.includes($page.url.pathname));
+	// Check pathname without language prefix
+	const pathWithoutLang = $derived(() => {
+		const path = $page.url.pathname;
+		return path.replace(/^\/en(\/|$)/, '/');
+	});
+	let isHidden = $derived(hiddenRoutes.includes(pathWithoutLang()));
 
 	let { children, data } = $props();
 

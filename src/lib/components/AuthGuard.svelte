@@ -18,13 +18,20 @@
   const auth = useAuth();
   const profileCheck = useQuery(api.profiles.checkProfileComplete, {});
 
+  // Helper function to get pathname without language prefix
+  const getPathWithoutLang = $derived(() => {
+    const path = page.url.pathname;
+    // Remove /en prefix if exists
+    return path.replace(/^\/en(\/|$)/, '/');
+  });
+
   const isProtectedRoute = $derived(
-    PROTECTED_ROUTES.some(route => page.url.pathname.startsWith(route))
+    PROTECTED_ROUTES.some(route => getPathWithoutLang().startsWith(route))
   );
 
-  const isPublicOnlyRoute = $derived(PUBLIC_ROUTES.includes(page.url.pathname));
+  const isPublicOnlyRoute = $derived(PUBLIC_ROUTES.includes(getPathWithoutLang()));
 
-  const isOnboardingRoute = $derived(page.url.pathname.startsWith(ONBOARDING_ROUTE));
+  const isOnboardingRoute = $derived(getPathWithoutLang().startsWith(ONBOARDING_ROUTE));
 
   const isLoading = $derived(auth.isLoading || profileCheck.isLoading);
 
